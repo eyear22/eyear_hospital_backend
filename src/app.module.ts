@@ -9,6 +9,7 @@ import { Room } from './hospital/entities/room.entity';
 import { Ward } from './hospital/entities/ward.entity';
 import { Post } from './post/entities/post.entity';
 import { User } from './user/entities/user.entity';
+import { HospitalModule } from './hospital/hospital.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { User } from './user/entities/user.entity';
       },
     }),
     ConfigModule.forRoot(),
+    HospitalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
