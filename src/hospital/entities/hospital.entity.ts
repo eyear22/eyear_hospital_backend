@@ -3,6 +3,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { Patient } from './patient.entity';
 import { Ward } from './ward.entity';
 import { Common } from 'src/entities/common.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Hospital extends Common {
@@ -20,6 +21,10 @@ export class Hospital extends Common {
 
   @Column({ type: 'varchar' })
   address: string;
+
+  @Column({ nullable: true })
+  @Exclude()
+  currentHashedRefreshToken?: string;
 
   @OneToMany(() => Ward, (ward) => ward.hospital)
   wards: Ward[];
