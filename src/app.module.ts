@@ -10,6 +10,7 @@ import { Ward } from './hospital/entities/ward.entity';
 import { Post } from './post/entities/post.entity';
 import { User } from './user/entities/user.entity';
 import { HospitalModule } from './hospital/hospital.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { HospitalModule } from './hospital/hospital.module';
     }),
     ConfigModule.forRoot(),
     HospitalModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
