@@ -7,6 +7,9 @@ import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/id-check.dto';
 import { CreateWardDto } from './dto/create-ward.dto';
 import { Ward } from './entities/ward.entity';
+import { CreateRoomDto } from './dto/create-room.dto';
+import { Room } from './entities/room.entity';
+import { Patient } from './entities/patient.entity';
 
 @Injectable()
 export class HospitalService {
@@ -15,6 +18,8 @@ export class HospitalService {
     private hospitalRepository: Repository<Hospital>,
     @InjectRepository(Ward)
     private wardRepository: Repository<Ward>,
+    @InjectRepository(Room)
+    private roomRepository: Repository<Room>,
   ) {
     this.hospitalRepository = hospitalRepository;
     this.wardRepository = wardRepository;
@@ -72,12 +77,7 @@ export class HospitalService {
       const { id } = existedHospital;
       const wardName = requestDto.name;
 
-      const isExist = await this.wardRepository
-        .createQueryBuilder('ward')
-        .select('ward.id')
-        .where('ward.name = :wardName', { wardName })
-        .andWhere('ward.hospitalId = :id', { id })
-        .execute();
+      const isExist = await this.findWard(id, wardName);
 
       if (isExist.length != 0) {
         throw new ForbiddenException({
@@ -114,5 +114,69 @@ export class HospitalService {
       message: ['Not Existed Hospital'],
       error: 'Forbidden',
     });
+  }
+
+  async createRoom(
+    requestDto: CreateRoomDto,
+    hospitalId: string,
+  ): Promise<any> {
+    const hispital = await this.findHospital(hospitalId);
+    const ward = await this.findWard(hispital.id, requestDto.wardName);
+
+    if (ward.length < 1) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Not Existed Ward'],
+        error: 'Forbidden',
+      });
+    }
+
+    const requestRoomNumber = requestDto.roomNumber;
+    const wardId = ward[0].id;
+    const isExist = await this.roomRepository
+      .createQueryBuilder('room')
+      .select()
+      .where('room.roomNumber = :requestRoomNumber', { requestRoomNumber })
+      .andWhere('room.wardId = :wardId', { wardId })
+      .getMany();
+
+    if (isExist.length > 0) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['이미 등록된 병실 번호입니다.'],
+        error: 'Forbidden',
+      });
+    }
+
+    const { id, roomNumber } = await this.roomRepository.save({
+      ward: ward[0],
+      currentPatient: 0,
+      ...requestDto,
+    });
+
+    const result = {
+      id: id,
+      roomNumber: roomNumber,
+    };
+    return result;
+  }
+
+  async findWard(id: number, wardName: string): Promise<Ward[]> {
+    const ward = await this.wardRepository
+      .createQueryBuilder('ward')
+      .select()
+      .where('ward.name = :wardName', { wardName })
+      .andWhere('ward.hospitalId = :id', { id })
+      .getMany();
+
+    if (ward.length > 1) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['병원 및 병동 정보가 올바르지 않습니다.'],
+        error: 'Forbidden',
+      });
+    }
+
+    return ward;
   }
 }
