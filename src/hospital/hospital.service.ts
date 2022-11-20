@@ -9,6 +9,8 @@ import { CreateWardDto } from './dto/create-ward.dto';
 import { Ward } from './entities/ward.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { Room } from './entities/room.entity';
+import { Patient } from './entities/patient.entity';
+import { CreatePatientDto } from './dto/create-patient.dto';
 
 @Injectable()
 export class HospitalService {
@@ -19,9 +21,13 @@ export class HospitalService {
     private wardRepository: Repository<Ward>,
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
+    @InjectRepository(Patient)
+    private patientRepository: Repository<Patient>,
   ) {
     this.hospitalRepository = hospitalRepository;
     this.wardRepository = wardRepository;
+    this.roomRepository = roomRepository;
+    this.patientRepository = patientRepository;
   }
 
   async create(requestDto: CreateHospitalDto): Promise<any> {
@@ -132,17 +138,12 @@ export class HospitalService {
 
     const requestRoomNumber = requestDto.roomNumber;
     const wardId = ward[0].id;
-    const isExist = await this.roomRepository
-      .createQueryBuilder('room')
-      .select()
-      .where('room.roomNumber = :requestRoomNumber', { requestRoomNumber })
-      .andWhere('room.wardId = :wardId', { wardId })
-      .getMany();
+    const isExist = await this.findRoom(wardId, requestRoomNumber);
 
-    if (isExist.length > 0) {
+    if (isExist.length != 0) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
-        message: ['이미 등록된 병실 번호입니다.'],
+        message: ['Already registered patient'],
         error: 'Forbidden',
       });
     }
@@ -177,5 +178,79 @@ export class HospitalService {
     }
 
     return ward;
+  }
+
+  async findRoom(wardId: number, roomNumber: number): Promise<Room[]> {
+    const room = await this.roomRepository
+      .createQueryBuilder('room')
+      .select()
+      .where('room.roomNumber = :roomNumber', { roomNumber })
+      .andWhere('room.wardId = :wardId', { wardId })
+      .getMany();
+
+    if (room.length > 1) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['병동 및 병실 정보가 올바르지 않습니다.'],
+        error: 'Forbidden',
+      });
+    }
+
+    return room;
+  }
+
+  async createPatient(requestDto: CreatePatientDto, hospitalId: string) {
+    const hospital = await this.findHospital(hospitalId);
+    const ward = await this.findWard(hospital.id, requestDto.wardName);
+    const room = await this.findRoom(ward[0].id, requestDto.roomNumber);
+
+    if (room.length < 1) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Not Existed Room'],
+        error: 'Forbidden',
+      });
+    }
+
+    if (room[0].currentPatient >= room[0].limitPatient) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['병실 수용 가능 인원이 가득 찼습니다.'],
+        error: 'Forbidden',
+      });
+    }
+
+    const isExist = await this.patientRepository.findOneBy({
+      infoNumber: requestDto.infoNumber,
+    });
+
+    if (isExist) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['이미 등록된 환자입니다'],
+        error: 'Forbidden',
+      });
+    }
+
+    const { id, name, patNumber, infoNumber } =
+      await this.patientRepository.save({
+        hospital: hospital,
+        ward: ward[0],
+        room: room[0],
+        ...requestDto,
+      });
+
+    await this.roomRepository.update(room[0].id, {
+      currentPatient: room[0].currentPatient + 1,
+    });
+
+    const result = {
+      id: id,
+      name: name,
+      patNumber: patNumber,
+      infoNumber: infoNumber,
+    };
+
+    return result;
   }
 }

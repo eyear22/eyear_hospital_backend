@@ -10,7 +10,7 @@ export class Patient extends Common {
   @Column({ type: 'varchar', length: 50 })
   name: string;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ type: 'varchar', length: 50 })
   patNumber: string;
 
   @Column()

@@ -12,6 +12,7 @@ import {
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
+import { CreatePatientDto } from './dto/create-patient.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { CreateWardDto } from './dto/create-ward.dto';
 import { IdCheckDto } from './dto/id-check.dto';
@@ -59,5 +60,19 @@ export class HospitalController {
       req.user.hospitalId,
     );
     return res.status(HttpStatus.CREATED).json(room);
+  }
+
+  @Post('patient')
+  @UseGuards(JwtAuthGuard)
+  async createPatient(
+    @Body() requestDto: CreatePatientDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const patient = await this.hospitalService.createPatient(
+      requestDto,
+      req.user.hospitalId,
+    );
+    return res.status(HttpStatus.CREATED).json(patient);
   }
 }
