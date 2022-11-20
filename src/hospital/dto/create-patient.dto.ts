@@ -25,7 +25,7 @@ export class CreatePatientDto {
 
   @IsNotEmpty()
   @IsString()
-  @Matches('')
+  @Matches('/^d{6}-d{7}$/')
   infoNumber: string;
 
   @IsNotEmpty()
