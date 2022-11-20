@@ -202,12 +202,19 @@ export class HospitalService {
   async createPatient(requestDto: CreatePatientDto, hospitalId: string) {
     const hospital = await this.findHospital(hospitalId);
     const ward = await this.findWard(hospital.id, requestDto.wardName);
-    const room = await this.findRoom(ward[0].id, requestDto.roomNumber);
+    if (ward.length < 1) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['병동 정보가 올바르지 않습니다.'],
+        error: 'Forbidden',
+      });
+    }
 
+    const room = await this.findRoom(ward[0].id, requestDto.roomNumber);
     if (room.length < 1) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
-        message: ['Not Existed Room'],
+        message: ['병실 정보가 올바르지 않습니다.'],
         error: 'Forbidden',
       });
     }
