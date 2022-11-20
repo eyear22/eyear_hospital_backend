@@ -9,7 +9,6 @@ import { CreateWardDto } from './dto/create-ward.dto';
 import { Ward } from './entities/ward.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { Room } from './entities/room.entity';
-import { Patient } from './entities/patient.entity';
 
 @Injectable()
 export class HospitalService {
@@ -120,8 +119,8 @@ export class HospitalService {
     requestDto: CreateRoomDto,
     hospitalId: string,
   ): Promise<any> {
-    const hispital = await this.findHospital(hospitalId);
-    const ward = await this.findWard(hispital.id, requestDto.wardName);
+    const hospital = await this.findHospital(hospitalId);
+    const ward = await this.findWard(hospital.id, requestDto.wardName);
 
     if (ward.length < 1) {
       throw new ForbiddenException({
