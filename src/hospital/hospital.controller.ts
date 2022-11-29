@@ -75,4 +75,10 @@ export class HospitalController {
     );
     return res.status(HttpStatus.CREATED).json(patient);
   }
+
+  @Get('main')
+  @UseGuards(JwtAuthGuard)
+  async getMainData(@Req() req: Request) {
+    return await this.hospitalService.getMainData(req.user.hospitalId);
+  }
 }
