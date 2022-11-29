@@ -11,6 +11,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
+import e from 'express';
 
 @Injectable()
 export class HospitalService {
@@ -262,15 +263,36 @@ export class HospitalService {
   }
 
   async getMainData(hospitalId: string) {
-    const today = new Date().toISOString().split('T')[0];
-    const today_posts = await this.hospitalRepository
+    const OFFSET = 1000 * 60 * 60 * 9;
+    const today = new Date(new Date().getTime() + OFFSET)
+      .toISOString()
+      .split('T')[0];
+
+    const result = await this.hospitalRepository
       .createQueryBuilder('hospital')
-      .select('post')
+      .select('post.id')
+      .addSelect('patient.id')
       .leftJoin('hospital.posts', 'post')
+      .leftJoin('hospital.patients', 'patient')
       .where('hospital.hospitalId = :hospitalId', { hospitalId })
       .andWhere('date_format(post.createdAt, "%Y-%m-%d") = :today', { today })
       .execute();
 
-    return today_posts;
+    for (const index in result) {
+      const patient = await this.patientRepository.findOne({
+        where: {
+          id: result[index].patient_id,
+        },
+        relations: ['ward', 'room'],
+      });
+
+      if (patient) {
+        result[index]['patient_name'] = patient.name;
+        result[index]['patient_number'] = patient.patNumber;
+        result[index]['patient_ward'] = patient.ward.name;
+        result[index]['patient_roomNumber'] = patient.room.roomNumber;
+      }
+    }
+    return result;
   }
 }
