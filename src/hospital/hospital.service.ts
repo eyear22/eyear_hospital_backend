@@ -260,4 +260,17 @@ export class HospitalService {
 
     return result;
   }
+
+  async getMainData(hospitalId: string) {
+    const today = new Date().toISOString().split('T')[0];
+    const today_posts = await this.hospitalRepository
+      .createQueryBuilder('hospital')
+      .select('post')
+      .leftJoin('hospital.posts', 'post')
+      .where('hospital.hospitalId = :hospitalId', { hospitalId })
+      .andWhere('date_format(post.createdAt, "%Y-%m-%d") = :today', { today })
+      .execute();
+
+    return today_posts;
+  }
 }
