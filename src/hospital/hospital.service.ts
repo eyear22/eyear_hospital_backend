@@ -270,6 +270,7 @@ export class HospitalService {
     const result = await this.hospitalRepository
       .createQueryBuilder('hospital')
       .select('post.id')
+      .addSelect('post.check')
       .addSelect('patient.id')
       .leftJoin('hospital.posts', 'post')
       .leftJoin('hospital.patients', 'patient')
