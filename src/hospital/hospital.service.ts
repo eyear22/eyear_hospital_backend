@@ -49,9 +49,8 @@ export class HospitalService {
       parseInt(process.env.HASH_NUMBER),
     );
 
-    const { password, ...result } = await this.hospitalRepository.save(
-      requestDto,
-    );
+    const { password, currentHashedRefreshToken, ...result } =
+      await this.hospitalRepository.save(requestDto);
     return result;
   }
 
@@ -63,13 +62,13 @@ export class HospitalService {
     if (isExist) {
       return {
         result: true,
-        message: '이미 존재하는 아이디입니다.',
+        text: '이미 존재하는 아이디입니다.',
       };
     }
 
     return {
       result: false,
-      message: '사용 가능한 아이디입니다.',
+      text: '사용 가능한 아이디입니다.',
     };
   }
 
