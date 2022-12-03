@@ -42,8 +42,14 @@ export class AuthService {
 
   async login(hospital: any) {
     const tokens = await this.getTokens(hospital.id, hospital.hospitalId);
+    const data = {
+      tokens: tokens,
+      user: {
+        name: hospital.name,
+      },
+    };
     await this.updateRtHash(hospital.id, tokens.refresh_token);
-    return tokens;
+    return data;
   }
 
   async updateRtHash(id: number, refresh_token: string) {
