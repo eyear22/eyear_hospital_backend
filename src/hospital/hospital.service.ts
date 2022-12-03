@@ -267,32 +267,31 @@ export class HospitalService {
       .toISOString()
       .split('T')[0];
 
-    const result = await this.hospitalRepository
+    const posts = await this.hospitalRepository
       .createQueryBuilder('hospital')
       .select('post.id')
       .addSelect('post.check')
-      .addSelect('patient.id')
+      .addSelect('post.patientId')
       .leftJoin('hospital.posts', 'post')
-      .leftJoin('hospital.patients', 'patient')
       .where('hospital.hospitalId = :hospitalId', { hospitalId })
       .andWhere('date_format(post.createdAt, "%Y-%m-%d") = :today', { today })
       .execute();
 
-    for (const index in result) {
+    for (const index in posts) {
       const patient = await this.patientRepository.findOne({
         where: {
-          id: result[index].patient_id,
+          id: posts[index].patient_id,
         },
         relations: ['ward', 'room'],
       });
 
       if (patient) {
-        result[index]['patient_name'] = patient.name;
-        result[index]['patient_number'] = patient.patNumber;
-        result[index]['patient_ward'] = patient.ward.name;
-        result[index]['patient_roomNumber'] = patient.room.roomNumber;
+        posts[index]['patient_name'] = patient.name;
+        posts[index]['patient_number'] = patient.patNumber;
+        posts[index]['patient_ward'] = patient.ward.name;
+        posts[index]['patient_roomNumber'] = patient.room.roomNumber;
       }
     }
-    return result;
+    return posts;
   }
 }
