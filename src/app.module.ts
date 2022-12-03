@@ -11,6 +11,7 @@ import { Post } from './post/entities/post.entity';
 import { User } from './user/entities/user.entity';
 import { HospitalModule } from './hospital/hospital.module';
 import { AuthModule } from './auth/auth.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot(),
     HospitalModule,
     AuthModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
