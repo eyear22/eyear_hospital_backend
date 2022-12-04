@@ -263,9 +263,9 @@ export class HospitalService {
 
   async getMainData(hospitalId: string) {
     const OFFSET = 1000 * 60 * 60 * 9;
-    const today = new Date(new Date().getTime() + OFFSET)
-      .toISOString()
-      .split('T')[0];
+    const day = new Date(new Date().getTime() + OFFSET);
+    day.setDate(day.getDate() - 1);
+    const yesterday = day.toISOString().split('T')[0];
 
     const posts = await this.hospitalRepository
       .createQueryBuilder('hospital')
@@ -274,7 +274,9 @@ export class HospitalService {
       .addSelect('post.patientId')
       .leftJoin('hospital.posts', 'post')
       .where('hospital.hospitalId = :hospitalId', { hospitalId })
-      .andWhere('date_format(post.createdAt, "%Y-%m-%d") = :today', { today })
+      .andWhere('date_format(post.createdAt, "%Y-%m-%d") = :yesterday', {
+        yesterday,
+      })
       .execute();
 
     for (const index in posts) {
