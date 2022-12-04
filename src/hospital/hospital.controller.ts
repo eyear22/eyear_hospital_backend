@@ -30,6 +30,7 @@ import { CreateWardDto } from './dto/create-ward.dto';
 import { HospitalMainResponse } from './dto/hospital-main-response.dto';
 import { IdCheckResponse } from './dto/id-check-response.dto';
 import { IdCheckDto } from './dto/id-check.dto';
+import { PatientListResponse } from './dto/patient-list-response.dto';
 import { HospitalService } from './hospital.service';
 
 @Controller('hospital')
@@ -172,6 +173,27 @@ export class HospitalController {
     const result = {
       message: 'success',
       today_posts: today_posts,
+    };
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Get('patient')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병원 환우 관리 페이지',
+    description: '병원 환우 관리 페이지',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: PatientListResponse,
+  })
+  async getPatients(@Req() req: Request, @Res() res: Response) {
+    const patients = await this.hospitalService.getPatients(
+      req.user.hospitalId,
+    );
+    const result = {
+      message: 'success',
+      patients: patients,
     };
     return res.status(HttpStatus.OK).json(result);
   }

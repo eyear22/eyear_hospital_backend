@@ -296,4 +296,22 @@ export class HospitalService {
     }
     return posts;
   }
+
+  async getPatients(hospitalId: string) {
+    const patients = await this.patientRepository
+      .createQueryBuilder('patient')
+      .select('patient.id')
+      .addSelect('patient.name')
+      .addSelect('patient.patNumber')
+      .addSelect('patient.inDate')
+      .addSelect('ward.name')
+      .addSelect('room.roomNumber')
+      .leftJoin('patient.hospital', 'hospital')
+      .leftJoin('patient.ward', 'ward')
+      .leftJoin('patient.room', 'room')
+      .where('hospital.hospitalId = :hospitalId', { hospitalId })
+      .execute();
+
+    return patients;
+  }
 }
