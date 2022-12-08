@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -18,7 +19,8 @@ import {
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { BaseResponse } from 'src/util/swagger/base-response.dto';
+import { ChangeStateResponse } from './dto/change-state-response.dto';
+import { ChangeStateDto } from './dto/change-state.dto';
 import { CreateHospitalResponse } from './dto/create-hospital-response.dto';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { CreatePatientResponse } from './dto/create-patient-response.dto';
@@ -194,6 +196,32 @@ export class HospitalController {
     const result = {
       message: 'success',
       patients: patients,
+    };
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Put('changeReservationState')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '예약 승인 여부 결정 API',
+    description: '예약 승인 여부 결정 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: ChangeStateResponse,
+  })
+  async changeReservationState(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() requestDto: ChangeStateDto,
+  ) {
+    const reservation = await this.hospitalService.changeReservationState(
+      req.user.hospitalId,
+      requestDto,
+    );
+    const result = {
+      message: 'success',
+      result: reservation,
     };
     return res.status(HttpStatus.OK).json(result);
   }
