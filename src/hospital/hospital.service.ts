@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
@@ -11,7 +16,8 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
-import e from 'express';
+import { ChangeStateDto } from './dto/change-state.dto';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Injectable()
 export class HospitalService {
@@ -24,11 +30,14 @@ export class HospitalService {
     private roomRepository: Repository<Room>,
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>,
+    @InjectRepository(Reservation)
+    private reservationRepository: Repository<Reservation>,
   ) {
     this.hospitalRepository = hospitalRepository;
     this.wardRepository = wardRepository;
     this.roomRepository = roomRepository;
     this.patientRepository = patientRepository;
+    this.reservationRepository = reservationRepository;
   }
 
   async create(requestDto: CreateHospitalDto): Promise<any> {
@@ -313,5 +322,40 @@ export class HospitalService {
       .execute();
 
     return patients;
+  }
+
+  async changeReservationState(hospitalId: string, requestDto: ChangeStateDto) {
+    const reservation = await this.reservationRepository.findOneBy({
+      id: requestDto.reservationId,
+    });
+
+    if (!reservation) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['존재하지 않는 예약입니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+
+    if (reservation.approveCheck != 0) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['이미 승인 여부가 결정된 예약입니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+    const updateResult = await this.reservationRepository.update(
+      { id: requestDto.reservationId },
+      {
+        approveCheck: requestDto.state,
+      },
+    );
+
+    if (updateResult.affected == 1) {
+      return {
+        reservationId: requestDto.reservationId,
+        state: requestDto.state == 1 ? '예약 승인' : '예약 거부',
+      };
+    }
   }
 }
