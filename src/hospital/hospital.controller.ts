@@ -19,21 +19,22 @@ import {
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ChangeStateResponse } from './dto/change-state-response.dto';
-import { ChangeStateDto } from './dto/change-state.dto';
-import { CreateHospitalResponse } from './dto/create-hospital-response.dto';
-import { CreateHospitalDto } from './dto/create-hospital.dto';
-import { CreatePatientResponse } from './dto/create-patient-response.dto';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { CreateRoomResponse } from './dto/create-room-response.dto';
-import { CreateRoomDto } from './dto/create-room.dto';
-import { CreateWardResponse } from './dto/create-ward-response.dto';
-import { CreateWardDto } from './dto/create-ward.dto';
-import { HospitalMainResponse } from './dto/hospital-main-response.dto';
-import { IdCheckResponse } from './dto/id-check-response.dto';
-import { IdCheckDto } from './dto/id-check.dto';
-import { PatientListResponse } from './dto/patient-list-response.dto';
+import { ChangeStateResponse } from './dto/response-dto/change-state-response.dto';
+import { ChangeStateDto } from './dto/request-dto/change-state.dto';
+import { CreateHospitalResponse } from './dto/response-dto/create-hospital-response.dto';
+import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
+import { CreatePatientResponse } from './dto/response-dto/create-patient-response.dto';
+import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
+import { CreateRoomResponse } from './dto/response-dto/create-room-response.dto';
+import { CreateRoomDto } from './dto/request-dto/create-room.dto';
+import { CreateWardResponse } from './dto/response-dto/create-ward-response.dto';
+import { CreateWardDto } from './dto/request-dto/create-ward.dto';
+import { HospitalMainResponse } from './dto/response-dto/hospital-main-response.dto';
+import { IdCheckResponse } from './dto/response-dto/id-check-response.dto';
+import { IdCheckDto } from './dto/request-dto/id-check.dto';
+import { PatientListResponse } from './dto/response-dto/patient-list-response.dto';
 import { HospitalService } from './hospital.service';
+import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -222,6 +223,25 @@ export class HospitalController {
     const result = {
       message: 'success',
       result: reservation,
+    };
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Get('wardList')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병동 리스트 API',
+    description: '병동 리스트 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: WardListResponse,
+  })
+  async getWardList(@Req() req: Request, @Res() res: Response) {
+    const wards = await this.hospitalService.getWardList(req.user.hospitalId);
+    const result = {
+      message: 'success',
+      wards: wards,
     };
     return res.status(HttpStatus.OK).json(result);
   }

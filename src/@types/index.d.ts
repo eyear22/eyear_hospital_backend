@@ -1,4 +1,4 @@
-import { ReqHospitalDto } from 'src/hospital/dto/req-hospital.dto';
+import { ReqHospitalDto } from 'src/hospital/dto/request-dto/req-hospital.dto';
 
 declare global {
   namespace Express {
