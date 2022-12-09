@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateHospitalDto } from './dto/create-hospital.dto';
+import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
 import { Hospital } from './entities/hospital.entity';
 import { hash } from 'bcrypt';
-import { IdCheckDto } from './dto/id-check.dto';
-import { CreateWardDto } from './dto/create-ward.dto';
+import { IdCheckDto } from './dto/request-dto/id-check.dto';
+import { CreateWardDto } from './dto/request-dto/create-ward.dto';
 import { Ward } from './entities/ward.entity';
-import { CreateRoomDto } from './dto/create-room.dto';
+import { CreateRoomDto } from './dto/request-dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { ChangeStateDto } from './dto/change-state.dto';
+import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
+import { ChangeStateDto } from './dto/request-dto/change-state.dto';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Injectable()
@@ -357,5 +357,17 @@ export class HospitalService {
         state: requestDto.state == 1 ? '예약 승인' : '예약 거부',
       };
     }
+  }
+
+  async getWardList(hospitalId: string) {
+    const wards = await this.wardRepository
+      .createQueryBuilder('ward')
+      .select('ward.id')
+      .addSelect('ward.name')
+      .leftJoin('ward.hospital', 'hospital')
+      .where('hospital.hospitalId = :hospitalId', { hospitalId })
+      .execute();
+
+    return wards;
   }
 }
