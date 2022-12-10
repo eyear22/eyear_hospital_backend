@@ -28,6 +28,8 @@ import { Reservation } from './reservation/entities/reservation.entity';
           database: process.env.MYSQLDB_DATABASE,
           entities: [User, Post, Room, Ward, Patient, Hospital, Reservation],
           synchronize: true, // Fix me : set this value to false when deploy
+          timezone: 'z',
+          charset: 'utf8mb4',
         };
       },
     }),

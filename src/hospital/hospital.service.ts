@@ -403,4 +403,26 @@ export class HospitalService {
     }
     return result;
   }
+
+  async getReservationList(hospitalId: string, date: Date) {
+    const reservations = await this.reservationRepository
+      .createQueryBuilder('reservation')
+      .select('reservation.id')
+      .addSelect('reservation.createdAt')
+      .addSelect('reservation.reservationDate')
+      .addSelect('reservation.faceToface')
+      .addSelect('reservation.approveCheck')
+      .addSelect('reservation.patientId')
+      .leftJoin('reservation.hospital', 'hospital')
+      .where('hospital.hospitalId = :hospitalId', { hospitalId })
+      .andWhere(
+        'date_format(reservation.reservationDate, "%Y-%m-%d") = :date',
+        {
+          date,
+        },
+      )
+      .execute();
+
+    return reservations;
+  }
 }
