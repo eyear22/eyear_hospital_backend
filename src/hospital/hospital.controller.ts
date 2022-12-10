@@ -35,6 +35,7 @@ import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { PatientListResponse } from './dto/response-dto/patient-list-response.dto';
 import { HospitalService } from './hospital.service';
 import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
+import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -242,6 +243,25 @@ export class HospitalController {
     const result = {
       message: 'success',
       wards: wards,
+    };
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Get('roomList')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병실 리스트 API',
+    description: '병실 리스트 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: RoomListResponse,
+  })
+  async getRoomList(@Req() req: Request, @Res() res: Response) {
+    const rooms = await this.hospitalService.getRoomList(req.user.hospitalId);
+    const result = {
+      message: 'success',
+      rooms: rooms,
     };
     return res.status(HttpStatus.OK).json(result);
   }
