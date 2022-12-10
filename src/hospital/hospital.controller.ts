@@ -36,6 +36,8 @@ import { PatientListResponse } from './dto/response-dto/patient-list-response.dt
 import { HospitalService } from './hospital.service';
 import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
 import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
+import { ReservationQueryDto } from './dto/request-dto/reservation-query.dto';
+import { ReservationListResponse } from './dto/response-dto/reservation-list-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -262,6 +264,32 @@ export class HospitalController {
     const result = {
       message: 'success',
       rooms: rooms,
+    };
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Get('reserVationList')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '면회 리스트 확인 API',
+    description: '면회 리스트 확인 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: ReservationListResponse,
+  })
+  async getReservationList(
+    @Query() query: ReservationQueryDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const reservations = await this.hospitalService.getReservationList(
+      req.user.hospitalId,
+      query.reservationDate,
+    );
+    const result = {
+      message: 'success',
+      reservations: reservations,
     };
     return res.status(HttpStatus.OK).json(result);
   }
