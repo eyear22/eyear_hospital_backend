@@ -370,4 +370,37 @@ export class HospitalService {
 
     return wards;
   }
+
+  async getRoomList(hospitalId: string) {
+    const wards = await this.getWardList(hospitalId);
+    const result = [];
+
+    for (const ward of wards) {
+      const wardId = ward.ward_id;
+
+      const rooms = await this.roomRepository
+        .createQueryBuilder('room')
+        .select('room.id')
+        .addSelect('room.roomNumber')
+        .addSelect('room.createdAt')
+        .addSelect('room.currentPatient')
+        .addSelect('room.icuCheck')
+        .leftJoin('room.ward', 'ward')
+        .where('ward.id = :wardId', { wardId })
+        .execute();
+
+      for (const room of rooms) {
+        result.push({
+          ward_id: ward.ward_id,
+          ward_name: ward.ward_name,
+          room_id: room.room_id,
+          room_createdAt: room.room_createdAt,
+          room_number: room.room_roomNumber,
+          room_currentPatient: room.room_currentPatient,
+          room_icuCheck: room.room_icuCheck,
+        });
+      }
+    }
+    return result;
+  }
 }
