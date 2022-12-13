@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Post,
@@ -40,6 +41,8 @@ import { ReservationQueryDto } from './dto/request-dto/reservation-query.dto';
 import { ReservationListResponse } from './dto/response-dto/reservation-list-response.dto';
 import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
+import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
+import { BaseResponse } from 'src/util/swagger/base-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -135,6 +138,30 @@ export class HospitalController {
       ward: ward,
     };
     return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Delete('ward')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병동 삭제',
+    description: '병동 삭제 - 병동과 연결된 병실 및 환자가 모두 삭제됩니다.',
+  })
+  @ApiCreatedResponse({
+    status: HttpStatus.CREATED,
+    description: 'success',
+    type: BaseResponse,
+  })
+  async deleteWard(
+    @Body() requestDto: DeleteWardDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const result = await this.hospitalService.deleteWard(
+      requestDto,
+      req.user.hospitalId,
+    );
+
+    return res.status(HttpStatus.OK).json({ message: result });
   }
 
   @Post('room')
