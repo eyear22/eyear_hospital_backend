@@ -20,6 +20,7 @@ import { ChangeStateDto } from './dto/request-dto/change-state.dto';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
+import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
 
 @Injectable()
 export class HospitalService {
@@ -477,6 +478,45 @@ export class HospitalService {
     const result = await this.wardRepository.delete({ id: requestDto.id });
     if (result.affected > 0) {
       return 'success';
+    }
+  }
+
+  async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
+    const hospital = await this.findHospital(hospitalId);
+    const room = await this.roomRepository.findOne({
+      where: { id: requestDto.id },
+      relations: { ward: true },
+    });
+
+    if (!room) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['존재하지 않는 병실입니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+
+    const ward = await this.findWard(hospital.id, room.ward.name);
+
+    if (ward.length != 1) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['올바르지 않은 병실 정보입니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+
+    const result = await this.roomRepository.update(
+      { id: requestDto.id },
+      {
+        roomNumber: requestDto.roomNumber,
+        icuCheck: requestDto.icuCheck,
+        limitPatient: requestDto.limitPatient,
+      },
+    );
+
+    if (result.affected > 0) {
+      return requestDto;
     }
   }
 }
