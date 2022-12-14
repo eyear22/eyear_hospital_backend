@@ -43,6 +43,8 @@ import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto'
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
 import { BaseResponse } from 'src/util/swagger/base-response.dto';
+import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
+import { UpdatePatientResponse } from './dto/response-dto/update-patient-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -346,6 +348,33 @@ export class HospitalController {
     const result = {
       message: 'success',
       reservations: reservations,
+    };
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  @Put('patient')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '환자 수정',
+    description: '환자 수정',
+  })
+  @ApiCreatedResponse({
+    status: HttpStatus.CREATED,
+    description: 'success',
+    type: UpdatePatientResponse,
+  })
+  async updatePatient(
+    @Body() requestDto: UpdatePatientDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const patient = await this.hospitalService.updatePatient(
+      requestDto,
+      req.user.hospitalId,
+    );
+    const result = {
+      message: 'success',
+      patient: patient,
     };
     return res.status(HttpStatus.OK).json(result);
   }
