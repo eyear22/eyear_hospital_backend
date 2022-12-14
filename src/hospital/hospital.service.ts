@@ -484,8 +484,10 @@ export class HospitalService {
 
   async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
     const hospital = await this.findHospital(hospitalId);
+
+    const { id, ...updateData } = requestDto;
     const room = await this.roomRepository.findOne({
-      where: { id: requestDto.id },
+      where: { id: id },
       relations: { ward: true },
     });
 
@@ -507,14 +509,7 @@ export class HospitalService {
       });
     }
 
-    const result = await this.roomRepository.update(
-      { id: requestDto.id },
-      {
-        roomNumber: requestDto.roomNumber,
-        icuCheck: requestDto.icuCheck,
-        limitPatient: requestDto.limitPatient,
-      },
-    );
+    const result = await this.roomRepository.update({ id }, updateData);
 
     if (result.affected > 0) {
       return requestDto;

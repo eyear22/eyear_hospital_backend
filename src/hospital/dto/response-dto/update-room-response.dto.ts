@@ -1,22 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseResponse } from 'src/util/swagger/base-response.dto';
-
-class UpdateRoomResponseData {
-  @ApiProperty({ description: '병실 아이디', example: 1 })
-  id: number;
-
-  @ApiProperty({ description: '변경된 병실 번호', example: 201 })
-  roomNumber: number;
-
-  @ApiProperty({ description: '변경된 icu 병실 여부', example: 1 })
-  icuCheck: boolean;
-
-  @ApiProperty({
-    description: '변경된 병실 최대 입원 가능 환자 수',
-    example: 10,
-  })
-  limitPatient: number;
-}
+import { UpdateRoomDto } from '../request-dto/update-room.dto';
 
 export abstract class UpdateRoomResponse extends BaseResponse {
   constructor() {
@@ -24,13 +8,7 @@ export abstract class UpdateRoomResponse extends BaseResponse {
   }
 
   @ApiProperty({
-    description: 'response result',
-    example: {
-      id: 1,
-      roomNumber: 401,
-      limitPatient: 10,
-      icuCheck: true,
-    },
+    description: 'response result - 병실의 수정된 데이터가 전송됩니다.',
   })
-  room: UpdateRoomResponseData;
+  room: UpdateRoomDto;
 }

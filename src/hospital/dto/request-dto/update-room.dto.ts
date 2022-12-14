@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateRoomDto {
   @IsNumber()
@@ -7,24 +7,24 @@ export class UpdateRoomDto {
   @ApiProperty({ description: '수정을 원하는 병실 아이디', example: 3 })
   id: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @ApiProperty({
     description: '병실 번호',
     example: 201,
   })
-  roomNumber: number;
+  roomNumber?: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @ApiProperty({ description: '최대 환자 수 ', example: 10 })
-  limitPatient: number;
+  limitPatient?: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   @ApiProperty({
     description: 'icu check',
     example: 0,
   })
-  icuCheck: boolean;
+  icuCheck?: boolean;
 }
