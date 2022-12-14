@@ -8,11 +8,7 @@ export abstract class UpdatePatientResponse extends BaseResponse {
   }
 
   @ApiProperty({
-    description: 'response result',
-    example: {
-      id: 1,
-      name: '박노인',
-    },
+    description: 'response result - 수정된 데이터가 전송됩니다.',
   })
   patient: UpdatePatientDto;
 }
