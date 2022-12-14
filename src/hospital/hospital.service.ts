@@ -21,6 +21,7 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
+import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
 
 @Injectable()
 export class HospitalService {
@@ -487,7 +488,7 @@ export class HospitalService {
     const { id, ...updateData } = requestDto;
     const patient = await this.patientRepository
       .createQueryBuilder('patient')
-      .where('patient.id =:id', { id: requestDto.id })
+      .where('patient.id =:id', { id })
       .andWhere('patient.hospitalId =:hospitalId', { hospitalId: hospital.id })
       .execute();
 
@@ -502,6 +503,29 @@ export class HospitalService {
     const result = await this.patientRepository.update({ id }, updateData);
     if (result.affected > 0) {
       return requestDto;
+    }
+  }
+
+  async deletePatient(requestDto: DeletePatientDto, hospitalId: string) {
+    const hospital = await this.findHospital(hospitalId);
+
+    const patient = await this.patientRepository
+      .createQueryBuilder('patient')
+      .where('patient.id =:id', { id: requestDto.id })
+      .andWhere('patient.hospitalId =:hospitalId', { hospitalId: hospital.id })
+      .execute();
+
+    if (patient.length != 1) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['병원과 환자 정보가 올바르지 않습니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+
+    const result = await this.patientRepository.delete({ id: requestDto.id });
+    if (result.affected > 0) {
+      return 'success';
     }
   }
 }
