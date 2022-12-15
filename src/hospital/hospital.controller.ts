@@ -43,6 +43,9 @@ import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto'
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
 import { BaseResponse } from 'src/util/swagger/base-response.dto';
+import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
+import { UpdateRoomResponse } from './dto/response-dto/update-room-response.dto';
+import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
 import { UpdatePatientResponse } from './dto/response-dto/update-patient-response.dto';
 import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
@@ -352,6 +355,32 @@ export class HospitalController {
     };
     return res.status(HttpStatus.OK).json(result);
   }
+  
+  @Put('room')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병실 수정 API',
+    description: '병실 수정 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: UpdateRoomResponse,
+  })
+  async updateRoom(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() requestDto: UpdateRoomDto,
+  ) {
+    const room = await this.hospitalService.updateRoom(
+      req.user.hospitalId,
+      requestDto,
+    );
+    const result = {
+      message: 'success',
+      room: room,
+      };
+    return res.status(HttpStatus.OK).json(result);
+  }
 
   @Put('patient')
   @UseGuards(JwtAuthGuard)
@@ -379,7 +408,30 @@ export class HospitalController {
     };
     return res.status(HttpStatus.OK).json(result);
   }
+  
+  @Delete('room')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병실 삭제 API',
+    description: '병실 삭제 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: BaseResponse,
+  })
+  async deleteRoom(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() requestDto: DeleteRoomDto,
+  ) {
+    const deleteResult = await this.hospitalService.deleteRoom(
+      req.user.hospitalId,
+      requestDto,
+    );
 
+    return res.status(HttpStatus.OK).json({ message: deleteResult });
+  }
+  
   @Delete('patient')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
