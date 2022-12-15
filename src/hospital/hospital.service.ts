@@ -406,7 +406,7 @@ export class HospitalService {
           ward_id: ward.ward_id,
           ward_name: ward.ward_name,
           room_id: room.room_id,
-          room_createdAt: room.room_createdAt,
+          room_createdAt: room.room_createdAt.toISOString().split('T')[0],
           room_number: room.room_roomNumber,
           room_currentPatient: room.room_currentPatient,
           room_icuCheck: room.room_icuCheck,
