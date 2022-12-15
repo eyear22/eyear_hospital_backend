@@ -355,7 +355,7 @@ export class HospitalController {
     };
     return res.status(HttpStatus.OK).json(result);
   }
-  
+
   @Put('room')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
@@ -378,7 +378,7 @@ export class HospitalController {
     const result = {
       message: 'success',
       room: room,
-      };
+    };
     return res.status(HttpStatus.OK).json(result);
   }
 
@@ -408,7 +408,7 @@ export class HospitalController {
     };
     return res.status(HttpStatus.OK).json(result);
   }
-  
+
   @Delete('room')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
@@ -431,7 +431,7 @@ export class HospitalController {
 
     return res.status(HttpStatus.OK).json({ message: deleteResult });
   }
-  
+
   @Delete('patient')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({

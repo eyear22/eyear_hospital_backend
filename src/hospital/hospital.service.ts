@@ -327,6 +327,12 @@ export class HospitalService {
       .where('hospital.hospitalId = :hospitalId', { hospitalId })
       .execute();
 
+    for (const patient of patients) {
+      patient.patient_inDate = patient.patient_inDate
+        .toISOString()
+        .split('T')[0];
+    }
+
     return patients;
   }
 
@@ -483,7 +489,7 @@ export class HospitalService {
       return 'success';
     }
   }
-  
+
   async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
     const hospital = await this.findHospital(hospitalId);
 
@@ -549,7 +555,7 @@ export class HospitalService {
       return 'success';
     }
   }
-  
+
   async updatePatient(requestDto: UpdatePatientDto, hospitalId: string) {
     const hospital = await this.findHospital(hospitalId);
 
