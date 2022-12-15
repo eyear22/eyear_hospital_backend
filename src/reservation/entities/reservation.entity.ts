@@ -9,6 +9,9 @@ export class Reservation extends Common {
   @Column({ type: Date })
   reservationDate: Date;
 
+  @Column({ type: 'int' })
+  timetableIndex: number;
+
   @Column({ type: 'boolean' })
   faceToface: boolean;
 

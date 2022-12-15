@@ -330,7 +330,7 @@ export class HospitalController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  @Get('reserVationList')
+  @Get('reservationList')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '면회 리스트 확인 API',
