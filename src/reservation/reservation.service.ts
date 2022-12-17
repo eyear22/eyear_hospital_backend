@@ -5,8 +5,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChangeStateDto } from 'src/hospital/dto/request-dto/change-state.dto';
-import { Hospital } from 'src/hospital/entities/hospital.entity';
+import { ChangeStateDto } from '../hospital/dto/request-dto/change-state.dto';
+import { Hospital } from '../hospital/entities/hospital.entity';
 import { Repository } from 'typeorm';
 import { Reservation } from './entities/reservation.entity';
 

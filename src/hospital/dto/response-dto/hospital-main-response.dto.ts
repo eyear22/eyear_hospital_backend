@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseResponse } from 'src/util/swagger/base-response.dto';
-
+import { BaseResponse } from '../../../util/swagger/base-response.dto';
 class PostData {
   @ApiProperty({
     description: '영상 id',

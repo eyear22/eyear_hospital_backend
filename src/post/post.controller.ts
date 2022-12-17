@@ -14,7 +14,7 @@ import { Response, Request } from 'express';
 import { PostService } from './post.service';
 import { PostDetailParamDto } from './dto/post-detail-param.dto';
 import { PostDetailResponse } from './dto/post-detail-response.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('post')
 @ApiTags('Post API')

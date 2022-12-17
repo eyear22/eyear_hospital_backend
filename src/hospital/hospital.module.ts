@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ward } from './entities/ward.entity';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Reservation } from '../reservation/entities/reservation.entity';
 
 @Module({
   imports: [
