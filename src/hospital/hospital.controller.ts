@@ -20,8 +20,6 @@ import {
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ChangeStateResponse } from './dto/response-dto/change-state-response.dto';
-import { ChangeStateDto } from './dto/request-dto/change-state.dto';
 import { CreateHospitalResponse } from './dto/response-dto/create-hospital-response.dto';
 import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
 import { CreatePatientResponse } from './dto/response-dto/create-patient-response.dto';
@@ -37,8 +35,6 @@ import { PatientListResponse } from './dto/response-dto/patient-list-response.dt
 import { HospitalService } from './hospital.service';
 import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
 import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
-import { ReservationQueryDto } from './dto/request-dto/reservation-query.dto';
-import { ReservationListResponse } from './dto/response-dto/reservation-list-response.dto';
 import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
@@ -49,7 +45,6 @@ import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
 import { UpdatePatientResponse } from './dto/response-dto/update-patient-response.dto';
 import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
-import { AllReservationResponse } from './dto/response-dto/all-reservation-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -268,32 +263,6 @@ export class HospitalController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  @Put('changeReservationState')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '예약 승인 여부 결정 API',
-    description: '예약 승인 여부 결정 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: ChangeStateResponse,
-  })
-  async changeReservationState(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() requestDto: ChangeStateDto,
-  ) {
-    const reservation = await this.hospitalService.changeReservationState(
-      req.user.hospitalId,
-      requestDto,
-    );
-    const result = {
-      message: 'success',
-      result: reservation,
-    };
-    return res.status(HttpStatus.OK).json(result);
-  }
-
   @Get('wardList')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
@@ -328,32 +297,6 @@ export class HospitalController {
     const result = {
       message: 'success',
       rooms: rooms,
-    };
-    return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Get('reservationList')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '면회 리스트 확인 API',
-    description: '면회 리스트 확인 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: ReservationListResponse,
-  })
-  async getReservationList(
-    @Query() query: ReservationQueryDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const reservations = await this.hospitalService.getReservationList(
-      req.user.hospitalId,
-      query.reservationDate,
-    );
-    const result = {
-      message: 'success',
-      reservations: reservations,
     };
     return res.status(HttpStatus.OK).json(result);
   }
@@ -456,26 +399,5 @@ export class HospitalController {
     );
 
     return res.status(HttpStatus.OK).json({ message: result });
-  }
-
-  @Get('allReservation')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '면회 리스트 확인 API',
-    description: '면회 리스트 확인 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: AllReservationResponse,
-  })
-  async getAllReservation(@Req() req: Request, @Res() res: Response) {
-    const reservations = await this.hospitalService.getAllReservation(
-      req.user.hospitalId,
-    );
-    const result = {
-      message: 'success',
-      reservations: reservations,
-    };
-    return res.status(HttpStatus.OK).json(result);
   }
 }
