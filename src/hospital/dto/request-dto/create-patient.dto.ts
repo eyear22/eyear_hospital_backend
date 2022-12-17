@@ -30,7 +30,6 @@ export class CreatePatientDto {
 
   @IsNotEmpty()
   @IsString()
-  @Matches('/^d{6}-d{7}$/')
   @ApiProperty({ description: '환자 주민번호', example: '000000-0000000' })
   infoNumber: string;
 
