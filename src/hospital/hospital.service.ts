@@ -319,6 +319,7 @@ export class HospitalService {
       .addSelect('patient.name')
       .addSelect('patient.patNumber')
       .addSelect('patient.inDate')
+      .addSelect('patient.birth')
       .addSelect('ward.name')
       .addSelect('room.roomNumber')
       .leftJoin('patient.hospital', 'hospital')
@@ -328,9 +329,19 @@ export class HospitalService {
       .execute();
 
     for (const patient of patients) {
-      patient.patient_inDate = patient.patient_inDate
-        .toISOString()
-        .split('T')[0];
+      const birth_temp = patient.patient_birth.toISOString().split('T')[0];
+      const birth_temp2 = birth_temp.split('-');
+      patient.patient_birth =
+        birth_temp2[0].substring(2) + birth_temp2[1] + birth_temp2[2];
+
+      const inDate_temp = patient.patient_inDate.toISOString().split('T')[0]; // 2022-12-12
+      const inDate_temp2 = inDate_temp.split('-');
+      patient.patient_inDate =
+        inDate_temp2[0].substring(2) +
+        '/' +
+        inDate_temp2[1] +
+        '/' +
+        inDate_temp2[2];
     }
 
     return patients;
@@ -402,11 +413,19 @@ export class HospitalService {
         .execute();
 
       for (const room of rooms) {
+        const createdAt_temp = room.room_createdAt.toISOString().split('T')[0];
+        const createdAt_temp2 = createdAt_temp.split('-');
+
         result.push({
           ward_id: ward.ward_id,
           ward_name: ward.ward_name,
           room_id: room.room_id,
-          room_createdAt: room.room_createdAt.toISOString().split('T')[0],
+          room_createdAt:
+            createdAt_temp2[0].substring(2) +
+            '/' +
+            createdAt_temp2[1] +
+            '/' +
+            createdAt_temp2[2],
           room_number: room.room_roomNumber,
           room_currentPatient: room.room_currentPatient,
           room_icuCheck: room.room_icuCheck,
