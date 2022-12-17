@@ -13,9 +13,9 @@ class RoomResponseData {
 
   @ApiProperty({
     description: '병실 생성일',
-    example: '2022-12-04T16:12:40.842Z',
+    example: '2022-12-04',
   })
-  room_createdAt: Date;
+  room_createdAt: string;
 
   @ApiProperty({ description: '병실 번호', example: 101 })
   room_number: number;
@@ -39,7 +39,7 @@ export abstract class RoomListResponse extends BaseResponse {
         ward_id: 2,
         ward_name: '201동',
         room_id: 3,
-        room_createdAt: '2022-12-04T16:10:57.293Z',
+        room_createdAt: '2022-12-04',
         room_number: 101,
         room_currentPatient: 1,
         room_icuCheck: 1,
@@ -48,7 +48,7 @@ export abstract class RoomListResponse extends BaseResponse {
         ward_id: 2,
         ward_name: '201동',
         room_id: 4,
-        room_createdAt: '2022-12-04T16:12:40.842Z',
+        room_createdAt: '2022-12-04',
         room_number: 102,
         room_currentPatient: 1,
         room_icuCheck: 1,

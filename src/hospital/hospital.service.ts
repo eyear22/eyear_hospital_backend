@@ -327,6 +327,12 @@ export class HospitalService {
       .where('hospital.hospitalId = :hospitalId', { hospitalId })
       .execute();
 
+    for (const patient of patients) {
+      patient.patient_inDate = patient.patient_inDate
+        .toISOString()
+        .split('T')[0];
+    }
+
     return patients;
   }
 
@@ -400,7 +406,7 @@ export class HospitalService {
           ward_id: ward.ward_id,
           ward_name: ward.ward_name,
           room_id: room.room_id,
-          room_createdAt: room.room_createdAt,
+          room_createdAt: room.room_createdAt.toISOString().split('T')[0],
           room_number: room.room_roomNumber,
           room_currentPatient: room.room_currentPatient,
           room_icuCheck: room.room_icuCheck,
@@ -411,16 +417,14 @@ export class HospitalService {
   }
 
   async getReservationList(hospitalId: string, date: Date) {
+    const hospital = await this.findHospital(hospitalId);
+
     const reservations = await this.reservationRepository
       .createQueryBuilder('reservation')
-      .select('reservation.id')
-      .addSelect('reservation.createdAt')
-      .addSelect('reservation.reservationDate')
-      .addSelect('reservation.faceToface')
-      .addSelect('reservation.approveCheck')
-      .addSelect('reservation.patientId')
-      .leftJoin('reservation.hospital', 'hospital')
-      .where('hospital.hospitalId = :hospitalId', { hospitalId })
+      .select('reservation')
+      .where('reservation.hospitalId =:hospitalId ', {
+        hospitalId: hospital.id,
+      })
       .andWhere(
         'date_format(reservation.reservationDate, "%Y-%m-%d") = :date',
         {
@@ -428,6 +432,19 @@ export class HospitalService {
         },
       )
       .execute();
+
+    for (const reservation of reservations) {
+      reservation.reservation_createdAt = reservation.reservation_createdAt
+        .toISOString()
+        .split('T')[0];
+
+      reservation.reservation_reservationDate =
+        reservation.reservation_reservationDate.toISOString().split('T')[0];
+
+      reservation.reservation_updatedAt = reservation.reservation_updatedAt
+        .toISOString()
+        .split('T')[0];
+    }
 
     return reservations;
   }
@@ -483,7 +500,7 @@ export class HospitalService {
       return 'success';
     }
   }
-  
+
   async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
     const hospital = await this.findHospital(hospitalId);
 
@@ -549,7 +566,7 @@ export class HospitalService {
       return 'success';
     }
   }
-  
+
   async updatePatient(requestDto: UpdatePatientDto, hospitalId: string) {
     const hospital = await this.findHospital(hospitalId);
 

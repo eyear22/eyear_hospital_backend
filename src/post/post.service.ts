@@ -27,15 +27,30 @@ export class PostService {
     this.userRepository = userRepository;
   }
 
-  async getPostDetail(postId: number) {
-    const post = await this.postRepository.findOneBy({ id: postId });
-    if (!post) {
+  async getPostDetail(postId: number, hospitalId: string) {
+    const post = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.hospital', 'hospital')
+      .where('post.id =:postId', { postId })
+      .andWhere('hospital.hospitalId =:hospitalId', { hospitalId })
+      .execute();
+
+    if (post.length != 1) {
       throw new NotFoundException({
         statusCode: HttpStatus.NOT_FOUND,
         message: ['not existed post'],
         error: 'Not Found',
       });
     }
-    return post;
+
+    return {
+      id: post[0].post_id,
+      video: post[0].post_video,
+      text: post[0].post_text,
+      check: post[0].post_check,
+      stampNumber: post[0].post_stampNumber,
+      cardNumber: post[0].post_cardNumber,
+      createdAt: post[0].post_createdAt.toISOString().split('T')[0],
+    };
   }
 }

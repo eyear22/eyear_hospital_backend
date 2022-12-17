@@ -6,10 +6,28 @@ class ReservationResponseData {
   reservation_id: number;
 
   @ApiProperty({
-    description: '면회 접수 신청 날짜',
-    example: '2022-12-06T16:37:15.792Z',
+    description: '면회 접수를 신청한 날짜',
+    example: '2022-12-06',
   })
-  reservation_createdAt: Date;
+  reservation_createdAt: string;
+
+  @ApiProperty({
+    description: '면회 접수를 수정한 날짜',
+    example: '2022-12-06',
+  })
+  reservation_updatedAt: string;
+
+  @ApiProperty({
+    description: '면회 예약일 - 면회를 하고자 하는 날',
+    example: '2022-12-06',
+  })
+  reservation_reservationDate: string;
+
+  @ApiProperty({
+    description: '면회 시간 인덱스',
+    example: 1,
+  })
+  reservation_timetableIndex: number;
 
   @ApiProperty({ description: '대면/비대면 여부', example: true })
   reservation_faceToface: boolean;
@@ -18,16 +36,22 @@ class ReservationResponseData {
   reservation_approveCheck: number;
 
   @ApiProperty({
-    description: '면회 예약일',
-    example: '2022-12-06T16:37:15.792Z',
-  })
-  reservation_reservationDate: Date;
-
-  @ApiProperty({
     description: '환자 아이디',
     example: 1,
   })
   reservation_patientId: number;
+
+  @ApiProperty({
+    description: '병원 아이디',
+    example: 1,
+  })
+  reservation_hospitalId: number;
+
+  @ApiProperty({
+    description: '개인 아이디',
+    example: 1,
+  })
+  reservation_userId: number;
 }
 
 export abstract class ReservationListResponse extends BaseResponse {
@@ -39,20 +63,28 @@ export abstract class ReservationListResponse extends BaseResponse {
     description: 'response result',
     example: [
       {
-        reservation_id: 1,
-        reservation_createdAt: '2022-12-06T16:37:15.792Z',
-        reservation_reservationDate: '2022-10-10T00:00:00.000Z',
-        reservation_faceToface: 0,
-        reservation_approveCheck: 0,
-        reservation_patientId: 3,
+        reservation_id: 2,
+        reservation_createdAt: '2022-12-15',
+        reservation_updatedAt: '2022-12-15',
+        reservation_reservationDate: '2022-12-12',
+        reservation_timetableIndex: 0,
+        reservation_faceToface: 1,
+        reservation_approveCheck: 1,
+        reservation_hospitalId: 1,
+        reservation_userId: 12,
+        reservation_patientId: 7,
       },
       {
         reservation_id: 2,
-        reservation_createdAt: '2022-12-06T16:37:15.792Z',
-        reservation_reservationDate: '2022-10-10T00:00:00.000Z',
-        reservation_faceToface: 0,
-        reservation_approveCheck: 0,
-        patientId: 3,
+        reservation_createdAt: '2022-12-15',
+        reservation_updatedAt: '2022-12-15',
+        reservation_reservationDate: '2022-12-12',
+        reservation_timetableIndex: 0,
+        reservation_faceToface: 1,
+        reservation_approveCheck: 1,
+        reservation_hospitalId: 1,
+        reservation_userId: 12,
+        reservation_patientId: 7,
       },
     ],
   })
