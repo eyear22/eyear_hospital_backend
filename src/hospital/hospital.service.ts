@@ -16,7 +16,7 @@ import { CreateRoomDto } from './dto/request-dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Reservation } from '../reservation/entities/reservation.entity';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
 import { UpdateRoomDto } from './dto/request-dto/update-room.dto';

@@ -2,7 +2,7 @@ import { Exclude } from 'class-transformer';
 import { Post } from '../../post/entities/post.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Common } from '../../entities/common.entity';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
 
 @Entity()
 export class User extends Common {

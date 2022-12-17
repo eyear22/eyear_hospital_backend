@@ -3,8 +3,8 @@ import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Hospital } from './hospital.entity';
 import { Room } from './room.entity';
 import { Ward } from './ward.entity';
-import { Common } from 'src/entities/common.entity';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Common } from '../../entities/common.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
 
 @Entity()
 export class Patient extends Common {

@@ -2,9 +2,9 @@ import { Post } from '../../post/entities/post.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Patient } from './patient.entity';
 import { Ward } from './ward.entity';
-import { Common } from 'src/entities/common.entity';
+import { Common } from '../../entities/common.entity';
 import { Exclude } from 'class-transformer';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
 
 @Entity()
 export class Hospital extends Common {

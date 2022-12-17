@@ -11,12 +11,12 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ChangeStateDto } from 'src/hospital/dto/request-dto/change-state.dto';
-import { ReservationQueryDto } from 'src/hospital/dto/request-dto/reservation-query.dto';
-import { AllReservationResponse } from 'src/hospital/dto/response-dto/all-reservation-response.dto';
-import { ChangeStateResponse } from 'src/hospital/dto/response-dto/change-state-response.dto';
-import { ReservationListResponse } from 'src/hospital/dto/response-dto/reservation-list-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ChangeStateDto } from '../hospital/dto/request-dto/change-state.dto';
+import { ReservationQueryDto } from '../hospital/dto/request-dto/reservation-query.dto';
+import { AllReservationResponse } from '../hospital/dto/response-dto/all-reservation-response.dto';
+import { ChangeStateResponse } from '../hospital/dto/response-dto/change-state-response.dto';
+import { ReservationListResponse } from '../hospital/dto/response-dto/reservation-list-response.dto';
 import { ReservationService } from './reservation.service';
 
 @Controller('')

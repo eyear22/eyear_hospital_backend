@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Hospital } from 'src/hospital/entities/hospital.entity';
+import { Hospital } from '../hospital/entities/hospital.entity';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';

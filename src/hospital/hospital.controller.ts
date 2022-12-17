@@ -19,7 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateHospitalResponse } from './dto/response-dto/create-hospital-response.dto';
 import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
 import { CreatePatientResponse } from './dto/response-dto/create-patient-response.dto';
@@ -38,7 +38,7 @@ import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
 import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
-import { BaseResponse } from 'src/util/swagger/base-response.dto';
+import { BaseResponse } from '../util/swagger/base-response.dto';
 import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
 import { UpdateRoomResponse } from './dto/response-dto/update-room-response.dto';
 import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
