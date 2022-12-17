@@ -685,4 +685,51 @@ export class HospitalService {
       return 'success';
     }
   }
+
+  async getAllReservation(hospitalId: string) {
+    const hospital = await this.findHospital(hospitalId);
+
+    const reservations = await this.reservationRepository
+      .createQueryBuilder('reservation')
+      .select('reservation.id')
+      .addSelect('reservation.createdAt')
+      .addSelect('reservation.reservationDate')
+      .addSelect('reservation.timetableIndex')
+      .addSelect('reservation.faceToface')
+      .addSelect('reservation.approveCheck')
+      .addSelect('patient.patNumber')
+      .addSelect('patient.name')
+      .addSelect('room.roomNumber')
+      .addSelect('ward.name')
+      .leftJoin('reservation.patient', 'patient')
+      .leftJoin('patient.room', 'room')
+      .leftJoin('room.ward', 'ward')
+      .where('reservation.hospitalId =:hospitalId ', {
+        hospitalId: hospital.id,
+      })
+      .execute();
+
+    const result = { '-1': [], '0': [], '1': [] };
+
+    for (const reservation of reservations) {
+      reservation.reservation_createdAt = this.formatDate(
+        reservation.reservation_createdAt,
+      );
+
+      reservation.reservation_reservationDate = this.formatDate(
+        reservation.reservation_reservationDate,
+      );
+
+      result[reservation.reservation_approveCheck].push(reservation);
+    }
+
+    return result;
+  }
+
+  formatDate(dateData: Date) {
+    const temp = dateData.toISOString().split('T')[0];
+    const temp2 = temp.split('-');
+
+    return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
+  }
 }

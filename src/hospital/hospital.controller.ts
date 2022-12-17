@@ -49,6 +49,7 @@ import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
 import { UpdatePatientResponse } from './dto/response-dto/update-patient-response.dto';
 import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
+import { AllReservationResponse } from './dto/response-dto/all-reservation-response.dto';
 
 @Controller('hospital')
 @ApiTags('Hospital API')
@@ -455,5 +456,26 @@ export class HospitalController {
     );
 
     return res.status(HttpStatus.OK).json({ message: result });
+  }
+
+  @Get('allReservation')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '면회 리스트 확인 API',
+    description: '면회 리스트 확인 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: AllReservationResponse,
+  })
+  async getAllReservation(@Req() req: Request, @Res() res: Response) {
+    const reservations = await this.hospitalService.getAllReservation(
+      req.user.hospitalId,
+    );
+    const result = {
+      message: 'success',
+      reservations: reservations,
+    };
+    return res.status(HttpStatus.OK).json(result);
   }
 }
