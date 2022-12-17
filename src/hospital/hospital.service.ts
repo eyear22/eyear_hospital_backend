@@ -16,7 +16,6 @@ import { CreateRoomDto } from './dto/request-dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
-import { ChangeStateDto } from './dto/request-dto/change-state.dto';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
@@ -400,41 +399,6 @@ export class HospitalService {
     return patients;
   }
 
-  async changeReservationState(hospitalId: string, requestDto: ChangeStateDto) {
-    const reservation = await this.reservationRepository.findOneBy({
-      id: requestDto.reservationId,
-    });
-
-    if (!reservation) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['존재하지 않는 예약입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    if (reservation.approveCheck != 0) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['이미 승인 여부가 결정된 예약입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-    const updateResult = await this.reservationRepository.update(
-      { id: requestDto.reservationId },
-      {
-        approveCheck: requestDto.state,
-      },
-    );
-
-    if (updateResult.affected == 1) {
-      return {
-        reservationId: requestDto.reservationId,
-        state: requestDto.state == 1 ? '예약 승인' : '예약 거부',
-      };
-    }
-  }
-
   async getWardList(hospitalId: string) {
     const wards = await this.wardRepository
       .createQueryBuilder('ward')
@@ -486,39 +450,6 @@ export class HospitalService {
       }
     }
     return result;
-  }
-
-  async getReservationList(hospitalId: string, date: Date) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const reservations = await this.reservationRepository
-      .createQueryBuilder('reservation')
-      .select('reservation')
-      .where('reservation.hospitalId =:hospitalId ', {
-        hospitalId: hospital.id,
-      })
-      .andWhere(
-        'date_format(reservation.reservationDate, "%Y-%m-%d") = :date',
-        {
-          date,
-        },
-      )
-      .execute();
-
-    for (const reservation of reservations) {
-      reservation.reservation_createdAt = reservation.reservation_createdAt
-        .toISOString()
-        .split('T')[0];
-
-      reservation.reservation_reservationDate =
-        reservation.reservation_reservationDate.toISOString().split('T')[0];
-
-      reservation.reservation_updatedAt = reservation.reservation_updatedAt
-        .toISOString()
-        .split('T')[0];
-    }
-
-    return reservations;
   }
 
   async updateWard(requestDto: UpdateWardDto, hospitalId: string) {
@@ -684,52 +615,5 @@ export class HospitalService {
     if (result.affected > 0) {
       return 'success';
     }
-  }
-
-  async getAllReservation(hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const reservations = await this.reservationRepository
-      .createQueryBuilder('reservation')
-      .select('reservation.id')
-      .addSelect('reservation.createdAt')
-      .addSelect('reservation.reservationDate')
-      .addSelect('reservation.timetableIndex')
-      .addSelect('reservation.faceToface')
-      .addSelect('reservation.approveCheck')
-      .addSelect('patient.patNumber')
-      .addSelect('patient.name')
-      .addSelect('room.roomNumber')
-      .addSelect('ward.name')
-      .leftJoin('reservation.patient', 'patient')
-      .leftJoin('patient.room', 'room')
-      .leftJoin('room.ward', 'ward')
-      .where('reservation.hospitalId =:hospitalId ', {
-        hospitalId: hospital.id,
-      })
-      .execute();
-
-    const result = { '-1': [], '0': [], '1': [] };
-
-    for (const reservation of reservations) {
-      reservation.reservation_createdAt = this.formatDate(
-        reservation.reservation_createdAt,
-      );
-
-      reservation.reservation_reservationDate = this.formatDate(
-        reservation.reservation_reservationDate,
-      );
-
-      result[reservation.reservation_approveCheck].push(reservation);
-    }
-
-    return result;
-  }
-
-  formatDate(dateData: Date) {
-    const temp = dateData.toISOString().split('T')[0];
-    const temp2 = temp.split('-');
-
-    return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
   }
 }
