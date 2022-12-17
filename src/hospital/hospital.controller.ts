@@ -235,12 +235,13 @@ export class HospitalController {
     type: HospitalMainResponse,
   })
   async getMainData(@Req() req: Request, @Res() res: Response) {
-    const today_posts = await this.hospitalService.getMainData(
+    const { posts, reservations } = await this.hospitalService.getMainData(
       req.user.hospitalId,
     );
     const result = {
       message: 'success',
-      today_posts: today_posts,
+      today_posts: posts,
+      today_reservations: reservations,
     };
     return res.status(HttpStatus.OK).json(result);
   }

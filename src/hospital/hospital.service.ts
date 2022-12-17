@@ -279,6 +279,8 @@ export class HospitalService {
   async getMainData(hospitalId: string) {
     const OFFSET = 1000 * 60 * 60 * 9;
     const day = new Date(new Date().getTime() + OFFSET);
+    const today = day.toISOString().split('T')[0];
+
     day.setDate(day.getDate() - 1);
     const yesterday = day.toISOString().split('T')[0];
 
@@ -309,7 +311,58 @@ export class HospitalService {
         posts[index]['patient_roomNumber'] = patient.room.roomNumber;
       }
     }
-    return posts;
+
+    const reservations = await this.reservationRepository
+      .createQueryBuilder('reservation')
+      .select('reservation.createdAt')
+      .addSelect('reservation.reservationDate')
+      .addSelect('reservation.timetableIndex')
+      .addSelect('patient.patNumber')
+      .addSelect('patient.name')
+      .addSelect('ward.name')
+      .addSelect('room.roomNumber')
+      .leftJoin('reservation.hospital', 'hospital')
+      .leftJoin('reservation.patient', 'patient')
+      .leftJoin('patient.room', 'room')
+      .leftJoin('patient.ward', 'ward')
+      .where('hospital.hospitalId =:hospitalId', { hospitalId })
+      .andWhere(
+        'date_format(reservation.reservationDate, "%Y-%m-%d") = :today',
+        {
+          today,
+        },
+      )
+      .andWhere('reservation.faceToface =:faceToface', { faceToface: false })
+      .andWhere('reservation.approveCheck =:approveCheck', {
+        approveCheck: 1,
+      })
+      .execute();
+
+    for (const reservation of reservations) {
+      const createdAt_temp = reservation.reservation_createdAt
+        .toISOString()
+        .split('T')[0];
+      const createdAt_temp2 = createdAt_temp.split('-');
+      reservation.reservation_createdAt =
+        createdAt_temp2[0].substring(2) +
+        '/' +
+        createdAt_temp2[1] +
+        '/' +
+        createdAt_temp2[2];
+
+      const reservationDate_temp = reservation.reservation_reservationDate
+        .toISOString()
+        .split('T')[0];
+      const reservationDate_temp2 = reservationDate_temp.split('-');
+      reservation.reservation_reservationDate =
+        reservationDate_temp2[0].substring(2) +
+        '/' +
+        reservationDate_temp2[1] +
+        '/' +
+        reservationDate_temp2[2];
+    }
+
+    return { posts: posts, reservations: reservations };
   }
 
   async getPatients(hospitalId: string) {
