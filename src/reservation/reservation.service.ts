@@ -120,21 +120,12 @@ export class ReservationService {
   }
 
   async changeReservationState(hospitalId: string, requestDto: ChangeStateDto) {
-    const hospital = await this.findHospital(hospitalId);
     const reservation = await this.reservationRepository.findOne({
       where: {
         id: requestDto.reservationId,
+        hospital: { hospitalId: hospitalId },
       },
-      relations: { hospital: true },
     });
-
-    if (reservation.hospital.id != hospital.id) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['잘못된 접근입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
 
     if (!reservation) {
       throw new BadRequestException({
@@ -152,18 +143,16 @@ export class ReservationService {
       });
     }
 
-    const updateResult = await this.reservationRepository.update(
+    await this.reservationRepository.update(
       { id: requestDto.reservationId },
       {
         approveCheck: requestDto.state,
       },
     );
 
-    if (updateResult.affected == 1) {
-      return {
-        reservationId: requestDto.reservationId,
-        state: requestDto.state == 1 ? '예약 승인' : '예약 거부',
-      };
-    }
+    return {
+      reservationId: requestDto.reservationId,
+      state: requestDto.state == 1 ? '예약 승인' : '예약 거부',
+    };
   }
 }
