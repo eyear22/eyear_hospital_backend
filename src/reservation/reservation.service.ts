@@ -66,6 +66,7 @@ export class ReservationService {
       .where('reservation.hospitalId =:hospitalId ', {
         hospitalId: hospital.id,
       })
+      .orderBy('reservation.reservationDate', 'ASC')
       .execute();
 
     const result = { '-1': [], '0': [], '1': [] };
