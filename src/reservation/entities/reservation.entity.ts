@@ -1,12 +1,12 @@
 import { Hospital } from '../../hospital/entities/hospital.entity';
 import { Patient } from '../../hospital/entities/patient.entity';
 import { User } from '../../user/entities/user.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { Common } from '../../entities/common.entity';
 
 @Entity()
 export class Reservation extends Common {
-  @Column({ type: Date })
+  @Column({ type: Date, nullable: true })
   reservationDate: Date;
 
   @Column({ type: 'int' })
@@ -21,7 +21,6 @@ export class Reservation extends Common {
   @ManyToOne(() => Hospital, (hospital) => hospital.reservations, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn()
   hospital: Hospital;
 
   @ManyToOne(() => User, (user) => user.reservations, { onDelete: 'CASCADE' })
