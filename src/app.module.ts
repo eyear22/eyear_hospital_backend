@@ -14,6 +14,8 @@ import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { Reservation } from './reservation/entities/reservation.entity';
+import { Keyword } from './keywords/entities/keyworrd.entity';
+import { NameWord } from './keywords/entities/nameWord.entity';
 
 @Module({
   imports: [
@@ -26,7 +28,17 @@ import { Reservation } from './reservation/entities/reservation.entity';
           username: process.env.MYSQLDB_USER,
           password: process.env.MYSQLDB_PASSWORD,
           database: process.env.MYSQLDB_DATABASE,
-          entities: [User, Post, Room, Ward, Patient, Hospital, Reservation],
+          entities: [
+            User,
+            Post,
+            Room,
+            Ward,
+            Patient,
+            Hospital,
+            Reservation,
+            Keyword,
+            NameWord,
+          ],
           synchronize: true, // Fix me : set this value to false when deploy
           timezone: 'z',
           charset: 'utf8mb4',
