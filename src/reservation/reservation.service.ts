@@ -67,6 +67,7 @@ export class ReservationService {
         hospitalId: hospital.id,
       })
       .orderBy('reservation.reservationDate', 'ASC')
+      .addOrderBy('reservation.timetableIndex', 'ASC')
       .execute();
 
     const result = { '-1': [], '0': [], '1': [] };
