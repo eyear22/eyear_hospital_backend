@@ -480,30 +480,6 @@ export class HospitalService {
     }
   }
 
-  async deleteWard(requestDto: DeleteWardDto, hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const ward = await this.wardRepository
-      .createQueryBuilder('ward')
-      .select('ward')
-      .where('ward.id =:id', { id: requestDto.id })
-      .andWhere('ward.hospitalId =:hospitalId', { hospitalId: hospital.id })
-      .execute();
-
-    if (ward.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['병원과 병동 정보가 올바르지 않습니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.wardRepository.delete({ id: requestDto.id });
-    if (result.affected > 0) {
-      return 'success';
-    }
-  }
-
   async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
     const hospital = await this.findHospital(hospitalId);
 

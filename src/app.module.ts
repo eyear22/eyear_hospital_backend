@@ -55,7 +55,7 @@ import { WardModule } from './ward/ward.module';
     ReservationModule,
     WardModule,
   ],
-  controllers: [AppController, WardController],
-  providers: [AppService, WardService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

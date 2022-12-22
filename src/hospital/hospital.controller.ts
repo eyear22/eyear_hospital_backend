@@ -142,30 +142,6 @@ export class HospitalController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  @Delete('ward')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병동 삭제',
-    description: '병동 삭제 - 병동과 연결된 병실 및 환자가 모두 삭제됩니다.',
-  })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'success',
-    type: BaseResponse,
-  })
-  async deleteWard(
-    @Body() requestDto: DeleteWardDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const result = await this.hospitalService.deleteWard(
-      requestDto,
-      req.user.hospitalId,
-    );
-
-    return res.status(HttpStatus.OK).json({ message: result });
-  }
-
   @Post('room')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
