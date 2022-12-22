@@ -1,43 +1,26 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
 import { Hospital } from './entities/hospital.entity';
 import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
-import { Ward } from '../ward/entities/ward.entity';
-import { Room } from '../room/entities/room.entity';
-import { Patient } from '../patient/entities/patient.entity';
-import { CreatePatientDto } from '../patient/dto/request-dto/create-patient.dto';
 import { Reservation } from '../reservation/entities/reservation.entity';
-import { UpdatePatientDto } from '../patient/dto/request-dto/update-patient.dto';
-import { DeletePatientDto } from '../patient/dto/request-dto/delete-patient.dto';
+import { Post } from 'src/post/entities/post.entity';
 
 @Injectable()
 export class HospitalService {
   constructor(
     @InjectRepository(Hospital)
     private hospitalRepository: Repository<Hospital>,
-    @InjectRepository(Ward)
-    private wardRepository: Repository<Ward>,
-    @InjectRepository(Room)
-    private roomRepository: Repository<Room>,
-    @InjectRepository(Patient)
-    private patientRepository: Repository<Patient>,
     @InjectRepository(Reservation)
     private reservationRepository: Repository<Reservation>,
   ) {
     this.hospitalRepository = hospitalRepository;
-    this.wardRepository = wardRepository;
-    this.roomRepository = roomRepository;
-    this.patientRepository = patientRepository;
     this.reservationRepository = reservationRepository;
   }
+
+  OFFSET = 1000 * 60 * 60 * 9;
 
   async create(requestDto: CreateHospitalDto): Promise<any> {
     const isExist = await this.hospitalRepository.findOneBy({
@@ -80,65 +63,15 @@ export class HospitalService {
     };
   }
 
-  async findHospital(hospitalId: string): Promise<Hospital> {
-    const hospital = await this.hospitalRepository.findOneBy({
-      hospitalId,
-    });
-
-    if (hospital) {
-      return hospital;
-    }
-
-    throw new ForbiddenException({
-      statusCode: HttpStatus.FORBIDDEN,
-      message: ['Not Existed Hospital'],
-      error: 'Forbidden',
-    });
-  }
-
-  async findWard(id: number, wardName: string): Promise<Ward[]> {
-    const ward = await this.wardRepository
-      .createQueryBuilder('ward')
-      .select()
-      .where('ward.name = :wardName', { wardName })
-      .andWhere('ward.hospitalId = :id', { id })
-      .getMany();
-
-    if (ward.length > 1) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['병원 및 병동 정보가 올바르지 않습니다.'],
-        error: 'Forbidden',
-      });
-    }
-
-    return ward;
-  }
-
-  async findRoom(wardId: number, roomNumber: number): Promise<Room[]> {
-    const room = await this.roomRepository
-      .createQueryBuilder('room')
-      .select()
-      .where('room.roomNumber = :roomNumber', { roomNumber })
-      .andWhere('room.wardId = :wardId', { wardId })
-      .getMany();
-
-    if (room.length > 1) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['병동 및 병실 정보가 올바르지 않습니다.'],
-        error: 'Forbidden',
-      });
-    }
-
-    return room;
-  }
-
   async getMainData(hospitalId: string) {
-    const OFFSET = 1000 * 60 * 60 * 9;
-    const day = new Date(new Date().getTime() + OFFSET);
-    const today = day.toISOString().split('T')[0];
+    const posts = await this.getTodayPosts(hospitalId);
+    const reservations = await this.getTodayReservations(hospitalId);
 
+    return { posts: posts, reservations: reservations };
+  }
+
+  async getTodayPosts(hospitalId: string): Promise<Post> {
+    const day = new Date(new Date().getTime() + this.OFFSET);
     day.setDate(day.getDate() - 1);
     const yesterday = day.toISOString().split('T')[0];
 
@@ -146,35 +79,34 @@ export class HospitalService {
       .createQueryBuilder('hospital')
       .select('post.id')
       .addSelect('post.check')
-      .addSelect('post.patientId')
+      .addSelect('patient.id')
+      .addSelect('patient.name')
+      .addSelect('patient.patNumber')
+      .addSelect('room.roomNumber')
+      .addSelect('ward.name')
       .leftJoin('hospital.posts', 'post')
+      .leftJoin('post.patient', 'patient')
+      .leftJoin('patient.room', 'room')
+      .leftJoin('patient.ward', 'ward')
       .where('hospital.hospitalId = :hospitalId', { hospitalId })
       .andWhere('date_format(post.createdAt, "%Y-%m-%d") = :yesterday', {
         yesterday,
       })
       .execute();
 
-    for (const index in posts) {
-      const patient = await this.patientRepository.findOne({
-        where: {
-          id: posts[index].patient_id,
-        },
-        relations: ['ward', 'room'],
-      });
+    return posts;
+  }
 
-      if (patient) {
-        posts[index]['patient_name'] = patient.name;
-        posts[index]['patient_number'] = patient.patNumber;
-        posts[index]['patient_ward'] = patient.ward.name;
-        posts[index]['patient_roomNumber'] = patient.room.roomNumber;
-      }
-    }
+  async getTodayReservations(hospitalId: string): Promise<Reservation> {
+    const day = new Date(new Date().getTime() + this.OFFSET);
+    const today = day.toISOString().split('T')[0];
 
     const reservations = await this.reservationRepository
       .createQueryBuilder('reservation')
       .select('reservation.createdAt')
       .addSelect('reservation.reservationDate')
       .addSelect('reservation.timetableIndex')
+      .addSelect('reservation.faceToface')
       .addSelect('patient.patNumber')
       .addSelect('patient.name')
       .addSelect('ward.name')
@@ -190,48 +122,28 @@ export class HospitalService {
           today,
         },
       )
-      .andWhere('reservation.faceToface =:faceToface', { faceToface: false })
       .andWhere('reservation.approveCheck =:approveCheck', {
         approveCheck: 1,
       })
       .execute();
 
     for (const reservation of reservations) {
-      const createdAt_temp = reservation.reservation_createdAt
-        .toISOString()
-        .split('T')[0];
-      const createdAt_temp2 = createdAt_temp.split('-');
-      reservation.reservation_createdAt =
-        createdAt_temp2[0].substring(2) +
-        '/' +
-        createdAt_temp2[1] +
-        '/' +
-        createdAt_temp2[2];
+      reservation.reservation_createdAt = this.formatDate(
+        reservation.reservation_createdAt,
+      );
 
-      const reservationDate_temp = reservation.reservation_reservationDate
-        .toISOString()
-        .split('T')[0];
-      const reservationDate_temp2 = reservationDate_temp.split('-');
-      reservation.reservation_reservationDate =
-        reservationDate_temp2[0].substring(2) +
-        '/' +
-        reservationDate_temp2[1] +
-        '/' +
-        reservationDate_temp2[2];
+      reservation.reservation_reservationDate = this.formatDate(
+        reservation.reservation_reservationDate,
+      );
     }
 
-    return { posts: posts, reservations: reservations };
+    return reservations;
   }
 
-  async getWardList(hospitalId: string) {
-    const wards = await this.wardRepository
-      .createQueryBuilder('ward')
-      .select('ward.id')
-      .addSelect('ward.name')
-      .leftJoin('ward.hospital', 'hospital')
-      .where('hospital.hospitalId = :hospitalId', { hospitalId })
-      .execute();
+  formatDate(data: Date): string {
+    const temp = data.toISOString().split('T')[0];
+    const temp2 = temp.split('-');
 
-    return wards;
+    return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
   }
 }
