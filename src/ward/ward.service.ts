@@ -92,4 +92,17 @@ export class WardService {
 
     return ward;
   }
+
+  async getWards(hospitalId: string) {
+    const wards = await this.wardRepository.find({
+      where: { hospital: { hospitalId: hospitalId } },
+    });
+
+    const result = [];
+    for (const ward of wards) {
+      result.push({ ward_id: ward.id, ward_name: ward.name });
+    }
+
+    return result;
+  }
 }

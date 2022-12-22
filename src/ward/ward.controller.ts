@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpStatus,
   Post,
   Put,
@@ -23,6 +24,7 @@ import { CreateWardResponse } from 'src/ward/dto/response-dto/create-ward-respon
 import { CreateWardDto } from 'src/ward/dto/request-dto/create-ward.dto';
 import { UpdateWardResponse } from 'src/ward/dto/response-dto/update-ward-response.dto';
 import { UpdateWardDto } from 'src/ward/dto/request-dto/update-ward.dto';
+import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
 
 @Controller('')
 export class WardController {
@@ -103,5 +105,24 @@ export class WardController {
       req.user.hospitalId,
     );
     return res.status(HttpStatus.OK).json({ message: result });
+  }
+
+  @Get('hospital/wardList')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병동 리스트 API',
+    description: '병동 리스트 API',
+  })
+  @ApiOkResponse({
+    description: 'success',
+    type: WardListResponse,
+  })
+  async getWardList(@Req() req: Request, @Res() res: Response) {
+    const wards = await this.wardService.getWards(req.user.hospitalId);
+    const result = {
+      message: 'success',
+      wards: wards,
+    };
+    return res.status(HttpStatus.OK).json(result);
   }
 }

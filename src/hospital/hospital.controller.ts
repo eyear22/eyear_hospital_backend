@@ -33,8 +33,6 @@ import { PatientListResponse } from './dto/response-dto/patient-list-response.dt
 import { HospitalService } from './hospital.service';
 import { WardListResponse } from '../ward/dto/response-dto/ward-list-response.dto';
 import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
-import { UpdateWardResponse } from '../ward/dto/response-dto/update-ward-response.dto';
-import { UpdateWardDto } from '../ward/dto/request-dto/update-ward.dto';
 import { BaseResponse } from '../util/swagger/base-response.dto';
 import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
 import { UpdateRoomResponse } from './dto/response-dto/update-room-response.dto';
@@ -178,25 +176,6 @@ export class HospitalController {
     const result = {
       message: 'success',
       patients: patients,
-    };
-    return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Get('wardList')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병동 리스트 API',
-    description: '병동 리스트 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: WardListResponse,
-  })
-  async getWardList(@Req() req: Request, @Res() res: Response) {
-    const wards = await this.hospitalService.getWardList(req.user.hospitalId);
-    const result = {
-      message: 'success',
-      wards: wards,
     };
     return res.status(HttpStatus.OK).json(result);
   }
