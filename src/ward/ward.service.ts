@@ -1,6 +1,13 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateWardDto } from 'src/hospital/dto/request-dto/create-ward.dto';
 import { DeleteWardDto } from 'src/hospital/dto/request-dto/delete-ward.dto';
+import { Hospital } from 'src/hospital/entities/hospital.entity';
 import { Repository } from 'typeorm';
 import { Ward } from './entities/ward.entity';
 
@@ -9,8 +16,43 @@ export class WardService {
   constructor(
     @InjectRepository(Ward)
     private wardRepository: Repository<Ward>,
+    @InjectRepository(Hospital)
+    private hospitalRepository: Repository<Hospital>,
   ) {
     this.wardRepository = wardRepository;
+    this.hospitalRepository = hospitalRepository;
+  }
+
+  async createWard(
+    requestDto: CreateWardDto,
+    hospitalId: string,
+  ): Promise<any> {
+    const isExist = await this.wardRepository.findOne({
+      where: { name: requestDto.name, hospital: { hospitalId: hospitalId } },
+    });
+
+    if (isExist) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Already registered ward'],
+        error: 'Forbidden',
+      });
+    }
+
+    const hospital = await this.hospitalRepository.findOneBy({
+      hospitalId: hospitalId,
+    });
+
+    const { id, name } = await this.wardRepository.save({
+      name: requestDto.name,
+      hospital: hospital,
+    });
+
+    const result = {
+      id: id,
+      name: name,
+    };
+    return result;
   }
 
   async deleteWard(requestDto: DeleteWardDto, hospitalId: string) {

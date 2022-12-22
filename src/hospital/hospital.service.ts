@@ -86,39 +86,6 @@ export class HospitalService {
     };
   }
 
-  async createWard(
-    requestDto: CreateWardDto,
-    hospitalId: string,
-  ): Promise<any> {
-    const existedHospital = await this.findHospital(hospitalId);
-
-    if (existedHospital) {
-      const { id } = existedHospital;
-      const wardName = requestDto.name;
-
-      const isExist = await this.findWard(id, wardName);
-
-      if (isExist.length != 0) {
-        throw new ForbiddenException({
-          statusCode: HttpStatus.FORBIDDEN,
-          message: ['Already registered ward'],
-          error: 'Forbidden',
-        });
-      }
-    }
-
-    const { id, name } = await this.wardRepository.save({
-      name: requestDto.name,
-      hospital: existedHospital,
-    });
-
-    const result = {
-      id: id,
-      name: name,
-    };
-    return result;
-  }
-
   async findHospital(hospitalId: string): Promise<Hospital> {
     const hospital = await this.hospitalRepository.findOneBy({
       hospitalId,

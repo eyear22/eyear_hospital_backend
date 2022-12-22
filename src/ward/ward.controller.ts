@@ -3,20 +3,54 @@ import {
   Controller,
   Delete,
   HttpStatus,
+  Post,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { DeleteWardDto } from 'src/hospital/dto/request-dto/delete-ward.dto';
 import { BaseResponse } from 'src/util/swagger/base-response.dto';
 import { Request, Response } from 'express';
 import { WardService } from './ward.service';
+import { CreateWardResponse } from 'src/hospital/dto/response-dto/create-ward-response.dto';
+import { CreateWardDto } from 'src/hospital/dto/request-dto/create-ward.dto';
 
 @Controller('')
 export class WardController {
   constructor(private readonly wardService: WardService) {}
+
+  @Post('hospital/ward')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '병동 등록',
+    description: '병동 등록',
+  })
+  @ApiCreatedResponse({
+    status: HttpStatus.CREATED,
+    description: 'success',
+    type: CreateWardResponse,
+  })
+  async createWard(
+    @Body() requestDto: CreateWardDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const ward = await this.wardService.createWard(
+      requestDto,
+      req.user.hospitalId,
+    );
+    const result = {
+      message: 'success',
+      ward: ward,
+    };
+    return res.status(HttpStatus.CREATED).json(result);
+  }
 
   @Delete('hospital/ward')
   @UseGuards(JwtAuthGuard)

@@ -26,8 +26,6 @@ import { CreatePatientResponse } from './dto/response-dto/create-patient-respons
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
 import { CreateRoomResponse } from './dto/response-dto/create-room-response.dto';
 import { CreateRoomDto } from './dto/request-dto/create-room.dto';
-import { CreateWardResponse } from './dto/response-dto/create-ward-response.dto';
-import { CreateWardDto } from './dto/request-dto/create-ward.dto';
 import { HospitalMainResponse } from './dto/response-dto/hospital-main-response.dto';
 import { IdCheckResponse } from './dto/response-dto/id-check-response.dto';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
@@ -37,7 +35,6 @@ import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
 import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
 import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto';
 import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
-import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
 import { BaseResponse } from '../util/swagger/base-response.dto';
 import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
 import { UpdateRoomResponse } from './dto/response-dto/update-room-response.dto';
@@ -86,33 +83,6 @@ export class HospitalController {
       idCheck: idCheck,
     };
     return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Post('ward')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병동 등록',
-    description: '병동 등록',
-  })
-  @ApiCreatedResponse({
-    status: HttpStatus.CREATED,
-    description: 'success',
-    type: CreateWardResponse,
-  })
-  async createWard(
-    @Body() requestDto: CreateWardDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const ward = await this.hospitalService.createWard(
-      requestDto,
-      req.user.hospitalId,
-    );
-    const result = {
-      message: 'success',
-      ward: ward,
-    };
-    return res.status(HttpStatus.CREATED).json(result);
   }
 
   @Put('ward')
