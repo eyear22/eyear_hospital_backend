@@ -16,9 +16,8 @@ import { ReservationModule } from './reservation/reservation.module';
 import { Reservation } from './reservation/entities/reservation.entity';
 import { Keyword } from './keywords/entities/keyworrd.entity';
 import { NameWord } from './keywords/entities/nameWord.entity';
-import { WardService } from './ward/ward.service';
-import { WardController } from './ward/ward.controller';
 import { WardModule } from './ward/ward.module';
+import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
@@ -54,6 +53,7 @@ import { WardModule } from './ward/ward.module';
     PostModule,
     ReservationModule,
     WardModule,
+    RoomModule,
   ],
   controllers: [AppController],
   providers: [AppService],
