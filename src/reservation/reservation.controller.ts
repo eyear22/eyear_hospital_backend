@@ -3,8 +3,8 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Put,
-  Query,
   Req,
   Res,
   UseGuards,
@@ -12,11 +12,10 @@ import {
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ChangeStateDto } from '../hospital/dto/request-dto/change-state.dto';
-import { ReservationQueryDto } from '../hospital/dto/request-dto/reservation-query.dto';
-import { AllReservationResponse } from '../hospital/dto/response-dto/all-reservation-response.dto';
-import { ChangeStateResponse } from '../hospital/dto/response-dto/change-state-response.dto';
-import { ReservationListResponse } from '../hospital/dto/response-dto/reservation-list-response.dto';
+import { ChangeStateDto } from './dto/request-dto/change-state.dto';
+import { ReservationParamDto } from './dto/request-dto/reservation-param.dto';
+import { ChangeStateResponse } from './dto/response-dto/change-state-response.dto';
+import { ReservationListResponse } from './dto/response-dto/reservation-list-response.dto';
 import { ReservationService } from './reservation.service';
 
 @Controller('')
@@ -27,12 +26,12 @@ export class ReservationController {
   @Get('hospital/allReservation')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: '면회 리스트 확인 API',
-    description: '면회 리스트 확인 API',
+    summary: '전체 면회 리스트 확인 API',
+    description: '전체 면회 리스트 확인 API',
   })
   @ApiOkResponse({
     description: 'success',
-    type: AllReservationResponse,
+    type: ReservationListResponse,
   })
   async getAllReservation(@Req() req: Request, @Res() res: Response) {
     const reservations = await this.reservationService.getAllReservation(
@@ -45,25 +44,27 @@ export class ReservationController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  @Get('hospital/reservationList')
+  @Get('hospital/reservationList/:reservationDate')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: '면회 리스트 확인 API',
-    description: '면회 리스트 확인 API',
+    summary: '특정 날짜의 면회 리스트 확인 API',
+    description:
+      '특정 날짜의 면회 리스트 확인 API --> 승인 여부에 상관없이 모든 리스트를 보냄',
   })
   @ApiOkResponse({
     description: 'success',
     type: ReservationListResponse,
   })
   async getReservationList(
-    @Query() query: ReservationQueryDto,
+    @Param() param: ReservationParamDto,
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    const reservations = await this.reservationService.getReservationList(
-      req.user.hospitalId,
-      query.reservationDate,
-    );
+    const reservations =
+      await this.reservationService.getReservationsOnSpecificDate(
+        req.user.hospitalId,
+        param.reservationDate,
+      );
     const result = {
       message: 'success',
       reservations: reservations,

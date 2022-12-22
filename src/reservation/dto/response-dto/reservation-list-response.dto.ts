@@ -30,7 +30,7 @@ class ReservationData {
   ward_name: string;
 }
 
-class ALlReservationResponseData {
+class ReservationResponseData {
   @ApiProperty({ description: '승인 여부 확인 안함' })
   '0': ReservationData[];
 
@@ -41,7 +41,7 @@ class ALlReservationResponseData {
   '-1': ReservationData[];
 }
 
-export abstract class AllReservationResponse extends BaseResponse {
+export abstract class ReservationListResponse extends BaseResponse {
   constructor() {
     super();
   }
@@ -105,5 +105,5 @@ export abstract class AllReservationResponse extends BaseResponse {
       ],
     },
   })
-  reservations: ALlReservationResponseData;
+  reservations: ReservationResponseData;
 }
