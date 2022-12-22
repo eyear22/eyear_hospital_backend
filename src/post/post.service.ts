@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from '../hospital/entities/hospital.entity';
-import { Patient } from '../hospital/entities/patient.entity';
+import { Patient } from '../patient/entities/patient.entity';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Post } from './entities/post.entity';

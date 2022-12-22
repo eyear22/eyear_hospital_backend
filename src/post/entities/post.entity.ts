@@ -1,5 +1,5 @@
 import { Hospital } from '../../hospital/entities/hospital.entity';
-import { Patient } from '../../hospital/entities/patient.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 import { User } from '../../user/entities/user.entity';
 import { Entity, Column, ManyToOne } from 'typeorm';
 import { Common } from '../../entities/common.entity';

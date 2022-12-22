@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Hospital } from '../hospital/entities/hospital.entity';
-import { Patient } from '../hospital/entities/patient.entity';
+import { Patient } from '../patient/entities/patient.entity';
 import { User } from '../user/entities/user.entity';
 import { Post } from './entities/post.entity';
 import { PostService } from './post.service';

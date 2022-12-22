@@ -12,13 +12,11 @@ import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { Ward } from '../ward/entities/ward.entity';
 import { Room } from '../room/entities/room.entity';
-import { Patient } from './entities/patient.entity';
-import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
+import { Patient } from '../patient/entities/patient.entity';
+import { CreatePatientDto } from '../patient/dto/request-dto/create-patient.dto';
 import { Reservation } from '../reservation/entities/reservation.entity';
-import { UpdateRoomDto } from '../room/dto/request-dto/update-room.dto';
-import { DeleteRoomDto } from '../room/dto/request-dto/delete-room.dto';
-import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
-import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
+import { UpdatePatientDto } from '../patient/dto/request-dto/update-patient.dto';
+import { DeletePatientDto } from '../patient/dto/request-dto/delete-patient.dto';
 
 @Injectable()
 export class HospitalService {
@@ -136,68 +134,6 @@ export class HospitalService {
     return room;
   }
 
-  async createPatient(requestDto: CreatePatientDto, hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-    const ward = await this.findWard(hospital.id, requestDto.wardName);
-    if (ward.length < 1) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['병동 정보가 올바르지 않습니다.'],
-        error: 'Forbidden',
-      });
-    }
-
-    const room = await this.findRoom(ward[0].id, requestDto.roomNumber);
-    if (room.length < 1) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['병실 정보가 올바르지 않습니다.'],
-        error: 'Forbidden',
-      });
-    }
-
-    if (room[0].currentPatient >= room[0].limitPatient) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['병실 수용 가능 인원이 가득 찼습니다.'],
-        error: 'Forbidden',
-      });
-    }
-
-    const isExist = await this.patientRepository.findOneBy({
-      infoNumber: requestDto.infoNumber,
-    });
-
-    if (isExist) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['이미 등록된 환자입니다'],
-        error: 'Forbidden',
-      });
-    }
-
-    const { id, name, patNumber, infoNumber } =
-      await this.patientRepository.save({
-        hospital: hospital,
-        ward: ward[0],
-        room: room[0],
-        ...requestDto,
-      });
-
-    await this.roomRepository.update(room[0].id, {
-      currentPatient: room[0].currentPatient + 1,
-    });
-
-    const result = {
-      id: id,
-      name: name,
-      patNumber: patNumber,
-      infoNumber: infoNumber,
-    };
-
-    return result;
-  }
-
   async getMainData(hospitalId: string) {
     const OFFSET = 1000 * 60 * 60 * 9;
     const day = new Date(new Date().getTime() + OFFSET);
@@ -287,41 +223,6 @@ export class HospitalService {
     return { posts: posts, reservations: reservations };
   }
 
-  async getPatients(hospitalId: string) {
-    const patients = await this.patientRepository
-      .createQueryBuilder('patient')
-      .select('patient.id')
-      .addSelect('patient.name')
-      .addSelect('patient.patNumber')
-      .addSelect('patient.inDate')
-      .addSelect('patient.birth')
-      .addSelect('ward.name')
-      .addSelect('room.roomNumber')
-      .leftJoin('patient.hospital', 'hospital')
-      .leftJoin('patient.ward', 'ward')
-      .leftJoin('patient.room', 'room')
-      .where('hospital.hospitalId = :hospitalId', { hospitalId })
-      .execute();
-
-    for (const patient of patients) {
-      const birth_temp = patient.patient_birth.toISOString().split('T')[0];
-      const birth_temp2 = birth_temp.split('-');
-      patient.patient_birth =
-        birth_temp2[0].substring(2) + birth_temp2[1] + birth_temp2[2];
-
-      const inDate_temp = patient.patient_inDate.toISOString().split('T')[0]; // 2022-12-12
-      const inDate_temp2 = inDate_temp.split('-');
-      patient.patient_inDate =
-        inDate_temp2[0].substring(2) +
-        '/' +
-        inDate_temp2[1] +
-        '/' +
-        inDate_temp2[2];
-    }
-
-    return patients;
-  }
-
   async getWardList(hospitalId: string) {
     const wards = await this.wardRepository
       .createQueryBuilder('ward')
@@ -332,52 +233,5 @@ export class HospitalService {
       .execute();
 
     return wards;
-  }
-
-  async updatePatient(requestDto: UpdatePatientDto, hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const { id, ...updateData } = requestDto;
-    const patient = await this.patientRepository
-      .createQueryBuilder('patient')
-      .where('patient.id =:id', { id })
-      .andWhere('patient.hospitalId =:hospitalId', { hospitalId: hospital.id })
-      .execute();
-
-    if (patient.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['병원과 환자 정보가 올바르지 않습니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.patientRepository.update({ id }, updateData);
-    if (result.affected > 0) {
-      return requestDto;
-    }
-  }
-
-  async deletePatient(requestDto: DeletePatientDto, hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const patient = await this.patientRepository
-      .createQueryBuilder('patient')
-      .where('patient.id =:id', { id: requestDto.id })
-      .andWhere('patient.hospitalId =:hospitalId', { hospitalId: hospital.id })
-      .execute();
-
-    if (patient.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['병원과 환자 정보가 올바르지 않습니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.patientRepository.delete({ id: requestDto.id });
-    if (result.affected > 0) {
-      return 'success';
-    }
   }
 }

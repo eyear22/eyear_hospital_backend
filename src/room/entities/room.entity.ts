@@ -1,6 +1,6 @@
 import { Common } from '../../entities/common.entity';
 import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Patient } from '../../hospital/entities/patient.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 import { Ward } from '../../ward/entities/ward.entity';
 import { Hospital } from 'src/hospital/entities/hospital.entity';
 
