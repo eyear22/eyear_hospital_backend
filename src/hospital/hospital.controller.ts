@@ -150,51 +150,6 @@ export class HospitalController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  @Get('roomList')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병실 리스트 API',
-    description: '병실 리스트 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: RoomListResponse,
-  })
-  async getRoomList(@Req() req: Request, @Res() res: Response) {
-    const rooms = await this.hospitalService.getRoomList(req.user.hospitalId);
-    const result = {
-      message: 'success',
-      rooms: rooms,
-    };
-    return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Put('room')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병실 수정 API',
-    description: '병실 수정 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: UpdateRoomResponse,
-  })
-  async updateRoom(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() requestDto: UpdateRoomDto,
-  ) {
-    const room = await this.hospitalService.updateRoom(
-      req.user.hospitalId,
-      requestDto,
-    );
-    const result = {
-      message: 'success',
-      room: room,
-    };
-    return res.status(HttpStatus.OK).json(result);
-  }
-
   @Put('patient')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
@@ -220,29 +175,6 @@ export class HospitalController {
       patient: patient,
     };
     return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Delete('room')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병실 삭제 API',
-    description: '병실 삭제 API',
-  })
-  @ApiOkResponse({
-    description: 'success',
-    type: BaseResponse,
-  })
-  async deleteRoom(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() requestDto: DeleteRoomDto,
-  ) {
-    const deleteResult = await this.hospitalService.deleteRoom(
-      req.user.hospitalId,
-      requestDto,
-    );
-
-    return res.status(HttpStatus.OK).json({ message: deleteResult });
   }
 
   @Delete('patient')

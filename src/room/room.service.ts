@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Ward } from 'src/ward/entities/ward.entity';
 import { Repository } from 'typeorm';
 import { CreateRoomDto } from './dto/request-dto/create-room.dto';
+import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
+import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
 import { Room } from './entities/room.entity';
 
 @Injectable()
@@ -61,5 +63,82 @@ export class RoomService {
       roomNumber: roomNumber,
     };
     return result;
+  }
+
+  async getRoomList(hospitalId: string) {
+    const wards = await this.wardRepositoty.find({
+      where: { hospital: { hospitalId: hospitalId } },
+    });
+
+    const result = [];
+
+    for (const ward of wards) {
+      const rooms = await this.roomRepository.find({
+        where: { ward: { id: ward.id } },
+      });
+
+      for (const room of rooms) {
+        const createdAt_temp = room.createdAt.toISOString().split('T')[0];
+        const createdAt_temp2 = createdAt_temp.split('-');
+
+        result.push({
+          ward_id: ward.id,
+          ward_name: ward.name,
+          room_id: room.id,
+          room_createdAt:
+            createdAt_temp2[0].substring(2) +
+            '/' +
+            createdAt_temp2[1] +
+            '/' +
+            createdAt_temp2[2],
+          room_number: room.roomNumber,
+          room_currentPatient: room.currentPatient,
+          room_icuCheck: room.icuCheck,
+        });
+      }
+    }
+    return result;
+  }
+
+  async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
+    const { id, wardName, ...updateData } = requestDto;
+    const room = await this.roomRepository.findOne({
+      where: {
+        id: id,
+        ward: { name: wardName },
+        hospital: { hospitalId: hospitalId },
+      },
+    });
+
+    if (room === null) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['존재하지 않는 병실입니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+
+    await this.roomRepository.update({ id }, updateData);
+    return requestDto;
+  }
+
+  async deleteRoom(hospitalId: string, requestDto: DeleteRoomDto) {
+    const room = await this.roomRepository.findOne({
+      where: {
+        id: requestDto.id,
+        hospital: { hospitalId: hospitalId },
+      },
+    });
+
+    if (room === null) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['존재하지 않는 병실입니다.'],
+        error: 'BAD_REQUEST',
+      });
+    }
+
+    await this.roomRepository.delete({ id: requestDto.id });
+    return 'success';
   }
 }
