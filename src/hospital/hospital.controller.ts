@@ -24,19 +24,16 @@ import { CreateHospitalResponse } from './dto/response-dto/create-hospital-respo
 import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
 import { CreatePatientResponse } from './dto/response-dto/create-patient-response.dto';
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
-import { CreateRoomResponse } from './dto/response-dto/create-room-response.dto';
-import { CreateRoomDto } from './dto/request-dto/create-room.dto';
 import { HospitalMainResponse } from './dto/response-dto/hospital-main-response.dto';
 import { IdCheckResponse } from './dto/response-dto/id-check-response.dto';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { PatientListResponse } from './dto/response-dto/patient-list-response.dto';
 import { HospitalService } from './hospital.service';
-import { WardListResponse } from '../ward/dto/response-dto/ward-list-response.dto';
-import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
+import { RoomListResponse } from '../room/dto/response-dto/room-list-response.dto';
 import { BaseResponse } from '../util/swagger/base-response.dto';
-import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
-import { UpdateRoomResponse } from './dto/response-dto/update-room-response.dto';
-import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
+import { UpdateRoomDto } from '../room/dto/request-dto/update-room.dto';
+import { UpdateRoomResponse } from '../room/dto/response-dto/update-room-response.dto';
+import { DeleteRoomDto } from '../room/dto/request-dto/delete-room.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
 import { UpdatePatientResponse } from './dto/response-dto/update-patient-response.dto';
 import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
@@ -81,33 +78,6 @@ export class HospitalController {
       idCheck: idCheck,
     };
     return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Post('room')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병실 등록',
-    description: '병실 등록',
-  })
-  @ApiCreatedResponse({
-    status: HttpStatus.CREATED,
-    description: 'success',
-    type: CreateRoomResponse,
-  })
-  async createRoom(
-    @Body() requestDto: CreateRoomDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const room = await this.hospitalService.createRoom(
-      requestDto,
-      req.user.hospitalId,
-    );
-    const result = {
-      message: 'success',
-      room: room,
-    };
-    return res.status(HttpStatus.CREATED).json(result);
   }
 
   @Post('patient')

@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreatePatientDto {
   @IsNotEmpty()

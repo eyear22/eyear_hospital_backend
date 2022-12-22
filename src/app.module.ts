@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Hospital } from './hospital/entities/hospital.entity';
 import { Patient } from './hospital/entities/patient.entity';
-import { Room } from './hospital/entities/room.entity';
+import { Room } from './room/entities/room.entity';
 import { Ward } from './ward/entities/ward.entity';
 import { Post } from './post/entities/post.entity';
 import { User } from './user/entities/user.entity';

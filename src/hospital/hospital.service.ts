@@ -11,13 +11,12 @@ import { Hospital } from './entities/hospital.entity';
 import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { Ward } from '../ward/entities/ward.entity';
-import { CreateRoomDto } from './dto/request-dto/create-room.dto';
-import { Room } from './entities/room.entity';
+import { Room } from '../room/entities/room.entity';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
 import { Reservation } from '../reservation/entities/reservation.entity';
-import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
-import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
+import { UpdateRoomDto } from '../room/dto/request-dto/update-room.dto';
+import { DeleteRoomDto } from '../room/dto/request-dto/delete-room.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
 import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
 
@@ -97,46 +96,6 @@ export class HospitalService {
       message: ['Not Existed Hospital'],
       error: 'Forbidden',
     });
-  }
-
-  async createRoom(
-    requestDto: CreateRoomDto,
-    hospitalId: string,
-  ): Promise<any> {
-    const hospital = await this.findHospital(hospitalId);
-    const ward = await this.findWard(hospital.id, requestDto.wardName);
-
-    if (ward.length < 1) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['Not Existed Ward'],
-        error: 'Forbidden',
-      });
-    }
-
-    const requestRoomNumber = requestDto.roomNumber;
-    const wardId = ward[0].id;
-    const isExist = await this.findRoom(wardId, requestRoomNumber);
-
-    if (isExist.length != 0) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['Already registered patient'],
-        error: 'Forbidden',
-      });
-    }
-
-    const { id, roomNumber } = await this.roomRepository.save({
-      ward: ward[0],
-      currentPatient: 0,
-      ...requestDto,
-    });
-
-    const result = {
-      id: id,
-      roomNumber: roomNumber,
-    };
-    return result;
   }
 
   async findWard(id: number, wardName: string): Promise<Ward[]> {

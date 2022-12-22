@@ -1,6 +1,6 @@
 import { Common } from '../../entities/common.entity';
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Patient } from './patient.entity';
+import { Patient } from '../../hospital/entities/patient.entity';
 import { Ward } from '../../ward/entities/ward.entity';
 
 @Entity()
