@@ -64,6 +64,7 @@ export class HospitalController {
     };
     return res.status(HttpStatus.OK).json(result);
   }
+
   @Get('main')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
