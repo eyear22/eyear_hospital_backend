@@ -1,11 +1,12 @@
 import { Post } from '../../post/entities/post.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Patient } from './patient.entity';
-import { Ward } from './ward.entity';
+import { Ward } from '../../ward/entities/ward.entity';
 import { Common } from '../../entities/common.entity';
 import { Exclude } from 'class-transformer';
 import { Reservation } from '../../reservation/entities/reservation.entity';
 import { User } from '../../user/entities/user.entity';
+import { Room } from 'src/room/entities/room.entity';
 
 @Entity()
 export class Hospital extends Common {
@@ -42,4 +43,7 @@ export class Hospital extends Common {
 
   @OneToMany(() => User, (user) => user.hospital)
   users: User[];
+
+  @OneToMany(() => Room, (room) => room.hospital)
+  rooms: Room[];
 }

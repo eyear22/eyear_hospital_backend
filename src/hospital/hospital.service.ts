@@ -10,17 +10,13 @@ import { CreateHospitalDto } from './dto/request-dto/create-hospital.dto';
 import { Hospital } from './entities/hospital.entity';
 import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
-import { CreateWardDto } from './dto/request-dto/create-ward.dto';
-import { Ward } from './entities/ward.entity';
-import { CreateRoomDto } from './dto/request-dto/create-room.dto';
-import { Room } from './entities/room.entity';
+import { Ward } from '../ward/entities/ward.entity';
+import { Room } from '../room/entities/room.entity';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
 import { Reservation } from '../reservation/entities/reservation.entity';
-import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
-import { DeleteWardDto } from './dto/request-dto/delete-ward.dto';
-import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
-import { DeleteRoomDto } from './dto/request-dto/delete-room.dto';
+import { UpdateRoomDto } from '../room/dto/request-dto/update-room.dto';
+import { DeleteRoomDto } from '../room/dto/request-dto/delete-room.dto';
 import { UpdatePatientDto } from './dto/request-dto/update-patient.dto';
 import { DeletePatientDto } from './dto/request-dto/delete-patient.dto';
 
@@ -86,39 +82,6 @@ export class HospitalService {
     };
   }
 
-  async createWard(
-    requestDto: CreateWardDto,
-    hospitalId: string,
-  ): Promise<any> {
-    const existedHospital = await this.findHospital(hospitalId);
-
-    if (existedHospital) {
-      const { id } = existedHospital;
-      const wardName = requestDto.name;
-
-      const isExist = await this.findWard(id, wardName);
-
-      if (isExist.length != 0) {
-        throw new ForbiddenException({
-          statusCode: HttpStatus.FORBIDDEN,
-          message: ['Already registered ward'],
-          error: 'Forbidden',
-        });
-      }
-    }
-
-    const { id, name } = await this.wardRepository.save({
-      name: requestDto.name,
-      hospital: existedHospital,
-    });
-
-    const result = {
-      id: id,
-      name: name,
-    };
-    return result;
-  }
-
   async findHospital(hospitalId: string): Promise<Hospital> {
     const hospital = await this.hospitalRepository.findOneBy({
       hospitalId,
@@ -133,46 +96,6 @@ export class HospitalService {
       message: ['Not Existed Hospital'],
       error: 'Forbidden',
     });
-  }
-
-  async createRoom(
-    requestDto: CreateRoomDto,
-    hospitalId: string,
-  ): Promise<any> {
-    const hospital = await this.findHospital(hospitalId);
-    const ward = await this.findWard(hospital.id, requestDto.wardName);
-
-    if (ward.length < 1) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['Not Existed Ward'],
-        error: 'Forbidden',
-      });
-    }
-
-    const requestRoomNumber = requestDto.roomNumber;
-    const wardId = ward[0].id;
-    const isExist = await this.findRoom(wardId, requestRoomNumber);
-
-    if (isExist.length != 0) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: ['Already registered patient'],
-        error: 'Forbidden',
-      });
-    }
-
-    const { id, roomNumber } = await this.roomRepository.save({
-      ward: ward[0],
-      currentPatient: 0,
-      ...requestDto,
-    });
-
-    const result = {
-      id: id,
-      roomNumber: roomNumber,
-    };
-    return result;
   }
 
   async findWard(id: number, wardName: string): Promise<Ward[]> {
@@ -409,165 +332,6 @@ export class HospitalService {
       .execute();
 
     return wards;
-  }
-
-  async getRoomList(hospitalId: string) {
-    const wards = await this.getWardList(hospitalId);
-    const result = [];
-
-    for (const ward of wards) {
-      const wardId = ward.ward_id;
-
-      const rooms = await this.roomRepository
-        .createQueryBuilder('room')
-        .select('room.id')
-        .addSelect('room.roomNumber')
-        .addSelect('room.createdAt')
-        .addSelect('room.currentPatient')
-        .addSelect('room.icuCheck')
-        .leftJoin('room.ward', 'ward')
-        .where('ward.id = :wardId', { wardId })
-        .execute();
-
-      for (const room of rooms) {
-        const createdAt_temp = room.room_createdAt.toISOString().split('T')[0];
-        const createdAt_temp2 = createdAt_temp.split('-');
-
-        result.push({
-          ward_id: ward.ward_id,
-          ward_name: ward.ward_name,
-          room_id: room.room_id,
-          room_createdAt:
-            createdAt_temp2[0].substring(2) +
-            '/' +
-            createdAt_temp2[1] +
-            '/' +
-            createdAt_temp2[2],
-          room_number: room.room_roomNumber,
-          room_currentPatient: room.room_currentPatient,
-          room_icuCheck: room.room_icuCheck,
-        });
-      }
-    }
-    return result;
-  }
-
-  async updateWard(requestDto: UpdateWardDto, hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const ward = await this.wardRepository
-      .createQueryBuilder('ward')
-      .select('ward')
-      .where('ward.id =:id', { id: requestDto.id })
-      .andWhere('ward.hospitalId =:hospitalId', { hospitalId: hospital.id })
-      .execute();
-
-    if (ward.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['병원과 병동 정보가 올바르지 않습니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.wardRepository.update(
-      { id: requestDto.id },
-      { name: requestDto.name },
-    );
-
-    if (result.affected > 0) {
-      return requestDto;
-    }
-  }
-
-  async deleteWard(requestDto: DeleteWardDto, hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const ward = await this.wardRepository
-      .createQueryBuilder('ward')
-      .select('ward')
-      .where('ward.id =:id', { id: requestDto.id })
-      .andWhere('ward.hospitalId =:hospitalId', { hospitalId: hospital.id })
-      .execute();
-
-    if (ward.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['병원과 병동 정보가 올바르지 않습니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.wardRepository.delete({ id: requestDto.id });
-    if (result.affected > 0) {
-      return 'success';
-    }
-  }
-
-  async updateRoom(hospitalId: string, requestDto: UpdateRoomDto) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const { id, ...updateData } = requestDto;
-    const room = await this.roomRepository.findOne({
-      where: { id: id },
-      relations: { ward: true },
-    });
-
-    if (!room) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['존재하지 않는 병실입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const ward = await this.findWard(hospital.id, room.ward.name);
-
-    if (ward.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['올바르지 않은 병실 정보입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.roomRepository.update({ id }, updateData);
-
-    if (result.affected > 0) {
-      return requestDto;
-    }
-  }
-
-  async deleteRoom(hospitalId: string, requestDto: DeleteRoomDto) {
-    const hospital = await this.findHospital(hospitalId);
-    const room = await this.roomRepository.findOne({
-      where: { id: requestDto.id },
-      relations: { ward: true },
-    });
-
-    if (!room) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['존재하지 않는 병실입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const ward = await this.findWard(hospital.id, room.ward.name);
-
-    if (ward.length != 1) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['올바르지 않은 병실 정보입니다.'],
-        error: 'BAD_REQUEST',
-      });
-    }
-
-    const result = await this.roomRepository.delete({ id: requestDto.id });
-
-    if (result.affected > 0) {
-      return 'success';
-    }
   }
 
   async updatePatient(requestDto: UpdatePatientDto, hospitalId: string) {
