@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChangeStateDto } from '../hospital/dto/request-dto/change-state.dto';
+import { ChangeStateDto } from './dto/request-dto/change-state.dto';
 import { Hospital } from '../hospital/entities/hospital.entity';
 import { Repository } from 'typeorm';
 import { Reservation } from './entities/reservation.entity';
@@ -29,47 +29,7 @@ export class ReservationService {
     return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
   }
 
-  async findHospital(hospitalId: string): Promise<Hospital> {
-    const hospital = await this.hospitalRepository.findOneBy({
-      hospitalId,
-    });
-
-    if (hospital) {
-      return hospital;
-    }
-
-    throw new ForbiddenException({
-      statusCode: HttpStatus.FORBIDDEN,
-      message: ['Not Existed Hospital'],
-      error: 'Forbidden',
-    });
-  }
-
-  async getAllReservation(hospitalId: string) {
-    const hospital = await this.findHospital(hospitalId);
-
-    const reservations = await this.reservationRepository
-      .createQueryBuilder('reservation')
-      .select('reservation.id')
-      .addSelect('reservation.createdAt')
-      .addSelect('reservation.reservationDate')
-      .addSelect('reservation.timetableIndex')
-      .addSelect('reservation.faceToface')
-      .addSelect('reservation.approveCheck')
-      .addSelect('patient.patNumber')
-      .addSelect('patient.name')
-      .addSelect('room.roomNumber')
-      .addSelect('ward.name')
-      .leftJoin('reservation.patient', 'patient')
-      .leftJoin('patient.room', 'room')
-      .leftJoin('room.ward', 'ward')
-      .where('reservation.hospitalId =:hospitalId ', {
-        hospitalId: hospital.id,
-      })
-      .orderBy('reservation.reservationDate', 'ASC')
-      .addOrderBy('reservation.timetableIndex', 'ASC')
-      .execute();
-
+  reservationResultFormat(reservations: any) {
     const result = { '-1': [], '0': [], '1': [] };
 
     for (const reservation of reservations) {
@@ -87,14 +47,52 @@ export class ReservationService {
     return result;
   }
 
-  async getReservationList(hospitalId: string, date: Date) {
-    const hospital = await this.findHospital(hospitalId);
-
+  async getAllReservation(hospitalId: string) {
     const reservations = await this.reservationRepository
       .createQueryBuilder('reservation')
-      .select('reservation')
-      .where('reservation.hospitalId =:hospitalId ', {
-        hospitalId: hospital.id,
+      .select('reservation.id')
+      .addSelect('reservation.createdAt')
+      .addSelect('reservation.reservationDate')
+      .addSelect('reservation.timetableIndex')
+      .addSelect('reservation.faceToface')
+      .addSelect('reservation.approveCheck')
+      .addSelect('patient.patNumber')
+      .addSelect('patient.name')
+      .addSelect('room.roomNumber')
+      .addSelect('ward.name')
+      .leftJoin('reservation.patient', 'patient')
+      .leftJoin('patient.room', 'room')
+      .leftJoin('room.ward', 'ward')
+      .leftJoin('reservation.hospital', 'hospital')
+      .where('hospital.hospitalId =:hospitalId ', {
+        hospitalId,
+      })
+      .orderBy('reservation.reservationDate', 'ASC')
+      .addOrderBy('reservation.timetableIndex', 'ASC')
+      .execute();
+
+    return this.reservationResultFormat(reservations);
+  }
+
+  async getReservationsOnSpecificDate(hospitalId: string, date: Date) {
+    const reservations = await this.reservationRepository
+      .createQueryBuilder('reservation')
+      .select('reservation.id')
+      .addSelect('reservation.createdAt')
+      .addSelect('reservation.reservationDate')
+      .addSelect('reservation.timetableIndex')
+      .addSelect('reservation.faceToface')
+      .addSelect('reservation.approveCheck')
+      .addSelect('patient.patNumber')
+      .addSelect('patient.name')
+      .addSelect('room.roomNumber')
+      .addSelect('ward.name')
+      .leftJoin('reservation.patient', 'patient')
+      .leftJoin('patient.room', 'room')
+      .leftJoin('room.ward', 'ward')
+      .leftJoin('reservation.hospital', 'hospital')
+      .where('hospital.hospitalId =:hospitalId ', {
+        hospitalId,
       })
       .andWhere(
         'date_format(reservation.reservationDate, "%Y-%m-%d") = :date',
@@ -102,23 +100,11 @@ export class ReservationService {
           date,
         },
       )
+      .orderBy('reservation.reservationDate', 'ASC')
+      .addOrderBy('reservation.timetableIndex', 'ASC')
       .execute();
 
-    for (const reservation of reservations) {
-      reservation.reservation_createdAt = this.formatDate(
-        reservation.reservation_createdAt,
-      );
-
-      reservation.reservation_reservationDate = this.formatDate(
-        reservation.reservation_reservationDate,
-      );
-
-      reservation.reservation_updatedAt = this.formatDate(
-        reservation.reservation_updatedAt,
-      );
-    }
-
-    return reservations;
+    return this.reservationResultFormat(reservations);
   }
 
   async changeReservationState(hospitalId: string, requestDto: ChangeStateDto) {
