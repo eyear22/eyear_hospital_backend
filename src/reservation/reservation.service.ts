@@ -1,43 +1,28 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChangeStateDto } from './dto/request-dto/change-state.dto';
-import { Hospital } from '../hospital/entities/hospital.entity';
 import { Repository } from 'typeorm';
 import { Reservation } from './entities/reservation.entity';
+import { FormatDate } from 'src/util/formatDate';
 
 @Injectable()
 export class ReservationService {
   constructor(
     @InjectRepository(Reservation)
     private reservationRepository: Repository<Reservation>,
-    @InjectRepository(Hospital)
-    private hospitalRepository: Repository<Hospital>,
   ) {
     this.reservationRepository = reservationRepository;
-    this.hospitalRepository = hospitalRepository;
-  }
-
-  formatDate(dateData: Date) {
-    const temp = dateData.toISOString().split('T')[0];
-    const temp2 = temp.split('-');
-
-    return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
   }
 
   reservationResultFormat(reservations: any) {
     const result = { '-1': [], '0': [], '1': [] };
 
     for (const reservation of reservations) {
-      reservation.reservation_createdAt = this.formatDate(
+      reservation.reservation_createdAt = FormatDate.formatDate(
         reservation.reservation_createdAt,
       );
 
-      reservation.reservation_reservationDate = this.formatDate(
+      reservation.reservation_reservationDate = FormatDate.formatDate(
         reservation.reservation_reservationDate,
       );
 

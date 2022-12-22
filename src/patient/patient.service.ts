@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from 'src/room/entities/room.entity';
+import { FormatDate } from 'src/util/formatDate';
 import { Ward } from 'src/ward/entities/ward.entity';
 import { Repository } from 'typeorm';
 import { CreatePatientDto } from './dto/request-dto/create-patient.dto';
@@ -116,20 +117,11 @@ export class PatientService {
       const birth =
         birth_temp2[0].substring(2) + birth_temp2[1] + birth_temp2[2];
 
-      const inDate_temp = patient.inDate.toISOString().split('T')[0];
-      const inDate_temp2 = inDate_temp.split('-');
-      const inDate =
-        inDate_temp2[0].substring(2) +
-        '/' +
-        inDate_temp2[1] +
-        '/' +
-        inDate_temp2[2];
-
       result.push({
         patient_id: patient.id,
         patient_name: patient.name,
         patient_patNumber: patient.patNumber,
-        patient_inDate: inDate,
+        patient_inDate: FormatDate.formatDate(patient.inDate),
         patient_birth: birth,
         ward_name: patient.ward.name,
         room_roomNumber: patient.room.roomNumber,

@@ -7,6 +7,7 @@ import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { Reservation } from '../reservation/entities/reservation.entity';
 import { Post } from 'src/post/entities/post.entity';
+import { FormatDate } from 'src/util/formatDate';
 
 @Injectable()
 export class HospitalService {
@@ -128,22 +129,15 @@ export class HospitalService {
       .execute();
 
     for (const reservation of reservations) {
-      reservation.reservation_createdAt = this.formatDate(
+      reservation.reservation_createdAt = FormatDate.formatDate(
         reservation.reservation_createdAt,
       );
 
-      reservation.reservation_reservationDate = this.formatDate(
+      reservation.reservation_reservationDate = FormatDate.formatDate(
         reservation.reservation_reservationDate,
       );
     }
 
     return reservations;
-  }
-
-  formatDate(data: Date): string {
-    const temp = data.toISOString().split('T')[0];
-    const temp2 = temp.split('-');
-
-    return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
   }
 }
