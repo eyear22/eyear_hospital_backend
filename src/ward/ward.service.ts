@@ -5,11 +5,12 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateWardDto } from 'src/hospital/dto/request-dto/create-ward.dto';
-import { DeleteWardDto } from 'src/hospital/dto/request-dto/delete-ward.dto';
+import { CreateWardDto } from 'src/ward/dto/request-dto/create-ward.dto';
+import { DeleteWardDto } from 'src/ward/dto/request-dto/delete-ward.dto';
 import { Hospital } from 'src/hospital/entities/hospital.entity';
 import { Repository } from 'typeorm';
 import { Ward } from './entities/ward.entity';
+import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
 
 @Injectable()
 export class WardService {
@@ -55,9 +56,30 @@ export class WardService {
     return result;
   }
 
+  async updateWard(requestDto: UpdateWardDto, hospitalId: string) {
+    const ward = await this.findWard(requestDto.id, hospitalId);
+
+    if (ward) {
+      await this.wardRepository.update(
+        { id: requestDto.id },
+        { name: requestDto.name },
+      );
+      return requestDto;
+    }
+  }
+
   async deleteWard(requestDto: DeleteWardDto, hospitalId: string) {
+    const ward = await this.findWard(requestDto.id, hospitalId);
+
+    if (ward) {
+      await this.wardRepository.delete({ id: requestDto.id });
+      return 'success';
+    }
+  }
+
+  async findWard(id: number, hospitalId: string) {
     const ward = await this.wardRepository.findOne({
-      where: { id: requestDto.id, hospital: { hospitalId: hospitalId } },
+      where: { id: id, hospital: { hospitalId: hospitalId } },
     });
 
     if (ward === null) {
@@ -68,7 +90,6 @@ export class WardService {
       });
     }
 
-    await this.wardRepository.delete({ id: requestDto.id });
-    return 'success';
+    return ward;
   }
 }

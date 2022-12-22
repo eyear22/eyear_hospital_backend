@@ -31,10 +31,10 @@ import { IdCheckResponse } from './dto/response-dto/id-check-response.dto';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { PatientListResponse } from './dto/response-dto/patient-list-response.dto';
 import { HospitalService } from './hospital.service';
-import { WardListResponse } from './dto/response-dto/ward-list-response.dto';
+import { WardListResponse } from '../ward/dto/response-dto/ward-list-response.dto';
 import { RoomListResponse } from './dto/response-dto/room-list-response.dto';
-import { UpdateWardResponse } from './dto/response-dto/update-ward-response.dto';
-import { UpdateWardDto } from './dto/request-dto/update-ward.dto';
+import { UpdateWardResponse } from '../ward/dto/response-dto/update-ward-response.dto';
+import { UpdateWardDto } from '../ward/dto/request-dto/update-ward.dto';
 import { BaseResponse } from '../util/swagger/base-response.dto';
 import { UpdateRoomDto } from './dto/request-dto/update-room.dto';
 import { UpdateRoomResponse } from './dto/response-dto/update-room-response.dto';
@@ -81,33 +81,6 @@ export class HospitalController {
     const result = {
       message: 'success',
       idCheck: idCheck,
-    };
-    return res.status(HttpStatus.OK).json(result);
-  }
-
-  @Put('ward')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: '병동 수정',
-    description: '병동 수정',
-  })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'success',
-    type: UpdateWardResponse,
-  })
-  async updateWard(
-    @Body() requestDto: UpdateWardDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const ward = await this.hospitalService.updateWard(
-      requestDto,
-      req.user.hospitalId,
-    );
-    const result = {
-      message: 'success',
-      ward: ward,
     };
     return res.status(HttpStatus.OK).json(result);
   }
