@@ -29,19 +29,19 @@ class PostData {
     description: '환자 번호',
     example: 'PA1234',
   })
-  patient_number: string;
+  patient_patNumber: string;
 
   @ApiProperty({
     description: '병동 이름',
     example: '201동',
   })
-  patient_ward: string;
+  room_roomNumber: string;
 
   @ApiProperty({
     description: '병실 번호',
     example: 101,
   })
-  patient_roomNumber: number;
+  ward_name: number;
 }
 
 class ReservationData {
@@ -62,6 +62,12 @@ class ReservationData {
     example: 1,
   })
   reservation_timetableIndex: number;
+
+  @ApiProperty({
+    description: '대면 여부',
+    example: true,
+  })
+  reservation_faceToface: boolean;
 
   @ApiProperty({
     description: '환자 이름',
@@ -97,22 +103,22 @@ export abstract class HospitalMainResponse extends BaseResponse {
     description: '오늘 도착한 영상 우편 리스트',
     example: [
       {
-        post_id: 5,
-        patient_id: 1,
+        post_id: 18,
         post_check: 0,
-        patient_name: '박노인',
-        patient_number: 'P123',
-        patient_ward: 'ward_test_name',
-        patient_roomNumber: 100,
+        patient_id: 9,
+        patient_name: '이환자',
+        patient_patNumber: 'PA123',
+        room_roomNumber: 103,
+        ward_name: '104동',
       },
       {
-        post_id: 6,
-        patient_id: 1234,
-        post_check: 1,
-        patient_name: '박노인',
-        patient_number: 'P123',
-        patient_ward: 'ward_test_name',
-        patient_roomNumber: 100,
+        post_id: 18,
+        post_check: 0,
+        patient_id: 9,
+        patient_name: '이환자',
+        patient_patNumber: 'PA123',
+        room_roomNumber: 103,
+        ward_name: '104동',
       },
     ],
   })
