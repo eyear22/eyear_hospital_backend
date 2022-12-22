@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Hospital } from './hospital/entities/hospital.entity';
-import { Patient } from './hospital/entities/patient.entity';
+import { Patient } from './patient/entities/patient.entity';
 import { Room } from './room/entities/room.entity';
 import { Ward } from './ward/entities/ward.entity';
 import { Post } from './post/entities/post.entity';
@@ -18,6 +18,7 @@ import { Keyword } from './keywords/entities/keyworrd.entity';
 import { NameWord } from './keywords/entities/nameWord.entity';
 import { WardModule } from './ward/ward.module';
 import { RoomModule } from './room/room.module';
+import { PatientModule } from './patient/patient.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { RoomModule } from './room/room.module';
     ReservationModule,
     WardModule,
     RoomModule,
+    PatientModule,
   ],
   controllers: [AppController],
   providers: [AppService],

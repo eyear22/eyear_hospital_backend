@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Common } from '../../entities/common.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
-import { Patient } from '../../hospital/entities/patient.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 import { Hospital } from '../../hospital/entities/hospital.entity';
 import { NameWord } from '../../keywords/entities/nameWord.entity';
 import { Keyword } from '../../keywords/entities/keyworrd.entity';

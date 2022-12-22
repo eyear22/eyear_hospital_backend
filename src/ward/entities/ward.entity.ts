@@ -1,7 +1,7 @@
 import { Common } from '../../entities/common.entity';
 import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Hospital } from '../../hospital/entities/hospital.entity';
-import { Patient } from '../../hospital/entities/patient.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 import { Room } from '../../room/entities/room.entity';
 
 @Entity()

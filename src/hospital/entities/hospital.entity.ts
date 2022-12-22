@@ -1,6 +1,6 @@
 import { Post } from '../../post/entities/post.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
-import { Patient } from './patient.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 import { Ward } from '../../ward/entities/ward.entity';
 import { Common } from '../../entities/common.entity';
 import { Exclude } from 'class-transformer';

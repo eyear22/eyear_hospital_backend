@@ -1,6 +1,6 @@
 import { Post } from '../../post/entities/post.entity';
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Hospital } from './hospital.entity';
+import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Hospital } from '../../hospital/entities/hospital.entity';
 import { Room } from '../../room/entities/room.entity';
 import { Ward } from '../../ward/entities/ward.entity';
 import { Common } from '../../entities/common.entity';
@@ -27,12 +27,15 @@ export class Patient extends Common {
   @ManyToOne(() => Hospital, (hospital) => hospital.patients, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn()
   hospital: Hospital;
 
   @ManyToOne(() => Ward, (ward) => ward.patients, { onDelete: 'CASCADE' })
+  @JoinColumn()
   ward: Ward;
 
   @ManyToOne(() => Room, (room) => room.patients, { onDelete: 'CASCADE' })
+  @JoinColumn()
   room: Room;
 
   @OneToMany(() => Post, (post) => post.patient)
