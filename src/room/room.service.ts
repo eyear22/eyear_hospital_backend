@@ -5,6 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FormatDate } from 'src/util/formatDate';
 import { Ward } from 'src/ward/entities/ward.entity';
 import { Repository } from 'typeorm';
 import { CreateRoomDto } from './dto/request-dto/create-room.dto';
@@ -78,19 +79,11 @@ export class RoomService {
       });
 
       for (const room of rooms) {
-        const createdAt_temp = room.createdAt.toISOString().split('T')[0];
-        const createdAt_temp2 = createdAt_temp.split('-');
-
         result.push({
           ward_id: ward.id,
           ward_name: ward.name,
           room_id: room.id,
-          room_createdAt:
-            createdAt_temp2[0].substring(2) +
-            '/' +
-            createdAt_temp2[1] +
-            '/' +
-            createdAt_temp2[2],
+          room_createdAt: FormatDate.formatDate(room.createdAt),
           room_number: room.roomNumber,
           room_currentPatient: room.currentPatient,
           room_icuCheck: room.icuCheck,

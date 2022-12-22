@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FormatDate } from 'src/util/formatDate';
 import { Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 
@@ -32,14 +33,7 @@ export class PostService {
       check: post.check,
       stampNumber: post.stampNumber,
       cardNumber: post.cardNumber,
-      createdAt: this.formatDate(post.createdAt),
+      createdAt: FormatDate.formatDate(post.createdAt),
     };
-  }
-
-  formatDate(data: Date): string {
-    const temp = data.toISOString().split('T')[0];
-    const temp2 = temp.split('-');
-
-    return temp2[0].substring(2) + '/' + temp2[1] + '/' + temp2[2];
   }
 }
