@@ -11,7 +11,7 @@ import { Hospital } from './entities/hospital.entity';
 import { hash } from 'bcrypt';
 import { IdCheckDto } from './dto/request-dto/id-check.dto';
 import { CreateWardDto } from './dto/request-dto/create-ward.dto';
-import { Ward } from './entities/ward.entity';
+import { Ward } from '../ward/entities/ward.entity';
 import { CreateRoomDto } from './dto/request-dto/create-room.dto';
 import { Room } from './entities/room.entity';
 import { Patient } from './entities/patient.entity';

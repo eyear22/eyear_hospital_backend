@@ -1,7 +1,7 @@
 import { Post } from '../../post/entities/post.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Patient } from './patient.entity';
-import { Ward } from './ward.entity';
+import { Ward } from '../../ward/entities/ward.entity';
 import { Common } from '../../entities/common.entity';
 import { Exclude } from 'class-transformer';
 import { Reservation } from '../../reservation/entities/reservation.entity';

@@ -4,7 +4,7 @@ import { Reservation } from '../reservation/entities/reservation.entity';
 import { Hospital } from './entities/hospital.entity';
 import { Patient } from './entities/patient.entity';
 import { Room } from './entities/room.entity';
-import { Ward } from './entities/ward.entity';
+import { Ward } from '../ward/entities/ward.entity';
 import { HospitalService } from './hospital.service';
 
 const mockRepository = () => ({});

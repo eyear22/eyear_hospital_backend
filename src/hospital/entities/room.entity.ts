@@ -1,7 +1,7 @@
 import { Common } from '../../entities/common.entity';
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Patient } from './patient.entity';
-import { Ward } from './ward.entity';
+import { Ward } from '../../ward/entities/ward.entity';
 
 @Entity()
 export class Room extends Common {

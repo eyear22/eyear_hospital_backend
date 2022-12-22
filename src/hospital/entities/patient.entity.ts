@@ -2,7 +2,7 @@ import { Post } from '../../post/entities/post.entity';
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Hospital } from './hospital.entity';
 import { Room } from './room.entity';
-import { Ward } from './ward.entity';
+import { Ward } from '../../ward/entities/ward.entity';
 import { Common } from '../../entities/common.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
 import { Keyword } from '../../keywords/entities/keyworrd.entity';

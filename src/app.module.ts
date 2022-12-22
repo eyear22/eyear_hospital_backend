@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { Hospital } from './hospital/entities/hospital.entity';
 import { Patient } from './hospital/entities/patient.entity';
 import { Room } from './hospital/entities/room.entity';
-import { Ward } from './hospital/entities/ward.entity';
+import { Ward } from './ward/entities/ward.entity';
 import { Post } from './post/entities/post.entity';
 import { User } from './user/entities/user.entity';
 import { HospitalModule } from './hospital/hospital.module';
@@ -16,6 +16,9 @@ import { ReservationModule } from './reservation/reservation.module';
 import { Reservation } from './reservation/entities/reservation.entity';
 import { Keyword } from './keywords/entities/keyworrd.entity';
 import { NameWord } from './keywords/entities/nameWord.entity';
+import { WardService } from './ward/ward.service';
+import { WardController } from './ward/ward.controller';
+import { WardModule } from './ward/ward.module';
 
 @Module({
   imports: [
@@ -50,8 +53,9 @@ import { NameWord } from './keywords/entities/nameWord.entity';
     AuthModule,
     PostModule,
     ReservationModule,
+    WardModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, WardController],
+  providers: [AppService, WardService],
 })
 export class AppModule {}
