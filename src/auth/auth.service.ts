@@ -103,4 +103,11 @@ export class AuthService {
       refresh_token,
     };
   }
+
+  async logout(hospital: any) {
+    await this.hospitalRepository.update(
+      { id: hospital.id },
+      { currentHashedRefreshToken: null },
+    );
+  }
 }
