@@ -116,6 +116,30 @@ export class ReservationService {
       });
     }
 
+    if (requestDto.state === 1) {
+      const reservations = await this.reservationRepository.find({
+        where: {
+          reservationDate: reservation.reservationDate,
+          timetableIndex: reservation.timetableIndex,
+          faceToface: reservation.faceToface,
+          approveCheck: 0,
+          hospital: { hospitalId: hospitalId },
+        },
+        select: { id: true },
+      });
+
+      for (const reservation of reservations) {
+        if (reservation.id != requestDto.reservationId) {
+          await this.reservationRepository.update(
+            { id: reservation.id },
+            {
+              approveCheck: -1,
+            },
+          );
+        }
+      }
+    }
+
     await this.reservationRepository.update(
       { id: requestDto.reservationId },
       {
